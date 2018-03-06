@@ -298,7 +298,6 @@ Transaction spi_read() {
             return {TXN_EMPTY};
         }
 
-
         if (!validate_checksum(buf, SPI.transfer(0))) {
             serial_print("Corrupted transaction, failed to validate checksum\n");
             return {TXN_INVALID_CHECKSUM};

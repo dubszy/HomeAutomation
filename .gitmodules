@@ -1,0 +1,4 @@
+[submodule "src/libnet"]
+	path = src/libnet
+	url = git@github.com:/sam-github/libnet.git
+	branch = master

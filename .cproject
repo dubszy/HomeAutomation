@@ -23,9 +23,8 @@
 							<builder buildPath="${workspace_loc:/HomeAutomation}/Debug" id="cdt.managedbuild.builder.gnu.cross.1345200062" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.812200692" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
 								<option id="gnu.c.compiler.option.include.paths.1881546319" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\development\toolchains\wb\mingw\include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\Arduino\hardware&quot;"/>
 									<listOptionValue builtIn="false" value="/Applications/Arduino.app/Contents/Java/hardware"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\Arduino\hardware&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/drivers/src/core}&quot;"/>
 								</option>
@@ -35,11 +34,8 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1424585087" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
 								<option id="gnu.cpp.compiler.option.include.paths.315830799" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;C:\development\toolchains\wb\mingw\include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\development\toolchains\wb\include\c++\4.8.3&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\development\toolchains\wb\include\c++\4.8.3\x86_64-w64-mingw32&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\Arduino\hardware&quot;"/>
 									<listOptionValue builtIn="false" value="/Applications/Arduino.app/Contents/Java/hardware"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\Arduino\hardware&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/drivers/src/core}&quot;"/>
 								</option>
@@ -140,7 +136,5 @@
 			<resource resourceType="PROJECT" workspacePath="/HomeAutomation"/>
 		</configuration>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
-		<buildTargets/>
-	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

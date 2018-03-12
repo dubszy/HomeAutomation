@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include <Device.hpp>
+#include <core/Device.hpp>
 #include <types/NetAddr.h>
 
 typedef struct {

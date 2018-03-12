@@ -1,0 +1,30 @@
+#ifndef _SERIAL_DEVICE_MANAGER_HPP_
+#define _SERIAL_DEVICE_MANAGER_HPP_
+
+#include <core/SerialDevice.hpp>
+
+#include "DeviceManager.hpp"
+
+typedef struct {
+    NetAddr net_addr;
+    SerialDevice *device;
+} SerialDeviceMap;
+
+class SerialDeviceManager : DeviceManager {
+
+    protected:
+        static SerialDeviceManager sharedSerialDeviceManager;
+
+    public:
+        SerialDeviceManager(uint32_t maxDevices) : DeviceManager(maxDevices) {}
+
+        static SerialDeviceManager getSharedSerialDeviceManager();
+        int addDevice(SerialDevice *device, NetAddr addr);
+        int removeDevice(NetAddr addr);
+        SerialDevice *getDevice(NetAddr addr);
+
+        SerialDeviceMap *discoverLocalDevices();
+        SerialDeviceMap *discoverDevicesOnLAN();
+};
+
+#endif /* _SERIAL_DEVICE_MANAGER_HPP_ */

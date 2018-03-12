@@ -26,7 +26,7 @@
 									<listOptionValue builtIn="false" value="/Applications/Arduino.app/Contents/Java/hardware"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\Arduino\hardware&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/drivers/src/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/drivers/src}&quot;"/>
 								</option>
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.263717121" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1424196701" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
@@ -37,7 +37,7 @@
 									<listOptionValue builtIn="false" value="/Applications/Arduino.app/Contents/Java/hardware"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\Arduino\hardware&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/drivers/src/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/drivers/src}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.1682391508" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.1237253062" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>

@@ -15,7 +15,6 @@
 #include <tools/avr/lib/gcc/avr/4.9.2/include/stdint.h>
 #include <arduino/avr/cores/arduino/Arduino.h>
 #include <arduino/avr/libraries/SPI/src/SPI.h>
-// FIXME: The Serial methods still cause parse errors in other editors
 #endif
 
 /* Pins */

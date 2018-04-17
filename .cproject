@@ -35,6 +35,8 @@
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1424585087" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
 								<option id="gnu.cpp.compiler.option.include.paths.315830799" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="/Applications/Arduino.app/Contents/Java/hardware"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Logger/src/c++}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/PropertiesManager/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\Arduino\hardware&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/drivers/src}&quot;"/>
@@ -137,4 +139,5 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

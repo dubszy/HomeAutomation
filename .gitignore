@@ -2,6 +2,10 @@
 
 .settings/language.settings.xml
 
+cmake-build-debug/
+
+*.config
+
 out/
 src/sandbox/
 !src/sandbox/README.md

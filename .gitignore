@@ -1,5 +1,6 @@
 .DS_Store
 
+.idea/
 .settings/language.settings.xml
 
 cmake-build-debug/
@@ -7,5 +8,8 @@ cmake-build-debug/
 *.config
 
 out/
+
 src/sandbox/
 !src/sandbox/README.md
+res/sandbox/
+!res/sandbox/README.md

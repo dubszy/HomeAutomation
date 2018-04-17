@@ -17,89 +17,29 @@
 #include <arduino/avr/libraries/SPI/src/SPI.h>
 #endif
 
+#include <types/device_types.h>
+
 /* Pins */
-#define HEATER_PIN      3
-#define PUMP1_LOW_PIN   5
-#define PUMP1_HIGH_PIN  6
-#define PUMP2_PIN       9
-#define BLOWER_PIN      10
+#define HEATER_PIN          3
+#define PUMP1_LOW_PIN       5
+#define PUMP1_HIGH_PIN      6
+#define PUMP2_PIN           9
+#define BLOWER_PIN          10
 
-/* Start and End Transaction */
-#define _TXN_START                                      0xFACE
-#define _TXN_END                                        0xE0F0
-
-/* Network Address */
-#define NET_ADDR                                        0x0000
-#define NET_ADDR_MASK                                   0xFFFF
-
-/* Transaction Types */
-#define TXN_NONE                                        0x0000
-#define TXN_SYS_MODE                                    0x0001
-#define TXN_SRVR_CHANGE_DEVICE_MODE                     0x0002
-#define TXN_USER_CHANGE_DEVICE_MODE                     0x0003
-#define TXN_WARNING                                     0x0004
-#define TXN_WARNING_RESPONSE                            0x0005
-#define TXN_ACK                                         0xD000
-#define TXN_NO_START                                    0xEFF0
-#define TXN_EMPTY                                       0xEFF1
-#define TXN_TOO_LARGE                                   0xEFF2
-#define TXN_INVALID_CHECKSUM                            0xEFF3
-#define TXN_INVALID_NET_ADDR                            0xEFF4
-#define TXN_TYPE_MASK                                   0xFFFF
-
-/* System Modes - server and client */
-#define SYS_MODE_STARTING                               0x0001
-#define SYS_MODE_READY                                  0x0002
-#define SYS_MODE_STOPPING                               0x0003
-#define SYS_MODE_ERROR                                  0x0004
-#define SYS_MODE_MASK                                   0xFFFF
-
-/* Warning Flags */
-#define WARN_SRVR_OTHER_DEVICE_CHANGE_MODE              0x0001
-#define WARN_SRVR_CONFIRM_OTHER_DEVICE_CHANGE_MODE      0x0002
-#define WARN_USER_OTHER_DEVICE_CHANGE_MODE              0x0003
-#define WARN_USER_CONFIRM_OTHER_DEVICE_CHANGE_MODE      0x0004
-#define WARN_USER_SRVR_CHANGE_DEVICE_MODE               0x0005
-#define WARN_USER_CONFIRM_SRVR_CHANGE_DEVICE_MODE       0x0006
-#define WARN_USER_SRVR_OTHER_DEVICE_CHANGE_MODE         0x0007
-#define WARN_USER_CONFIRM_SRVR_OTHER_DEVICE_CHANGE_MODE 0x0008
-#define WARN_MASK                                       0xFFFF
+#define NET_ADDR            0x3221
 
 /* Devices */
-#define DEVICE_HEATER                                   0x0001
-#define DEVICE_PUMP1                                    0x0002
-#define DEVICE_PUMP2                                    0x0003
-#define DEVICE_BLOWER                                   0x0004
-#define DEVICE_MASK                                     0xFFFF
+#define DEVICE_ID_HEATER    0x0001
+#define DEVICE_ID_PUMP1     0x0002
+#define DEVICE_ID_PUMP2     0x0003
+#define DEVICE_ID_BLOWER    0x0004
+#define DEVICE_ID_MASK      0xFFFF
 
-/* Device Mode Flags */
-#define MODE_FLAG_LOW                                   0x0001
-#define MODE_FLAG_HIGH                                  0x0002
-#define MODE_FLAG_AUTO                                  0x0004
-#define MODE_FLAG_USER                                  0x0008
-#define MODE_FLAG_MASK                                  0xFFFF
-
-/* Device Modes */
-#define MODE_OFF                                        0x0001
-#define MODE_ON                                         0x0002
-#define MODE_ERR                                        0x0004
-#define MODE_MASK                                       0xFFFF
-
-typedef struct {
-    uint16_t device;
-    uint16_t mode_flags;
-    uint16_t mode;
-} DeviceData;
-
-typedef struct {
-    uint16_t txn_type;
-    uint16_t sys_mode;
-    uint16_t warn_flags;
-    uint16_t devices_len;
-    DeviceData *devices;
-} Transaction;
-
-uint16_t valid_net_addrs[1] = {0x0000};
+uint16_t _heaterMode;   /**< Current mode of the heater */
+uint16_t _pump1Mode;    /**< Current mode of pump 1 */
+uint16_t _pump1Flags;   /**< Current mode flags of pump 1 */
+uint16_t _pump2Mode;    /**< Current mode of pump 2 */
+uint16_t _blowerMode;   /**< Current mode of the blower fan */
 
 void pulsePin(uint8_t pin) {
     digitalWrite(pin, HIGH);
@@ -158,89 +98,24 @@ void serial_print(const char *format, ...) {
 }
 
 /**
- * Compute a 16-bit one's complement checksum of supplied data.
- *
- * @param data Array of 16-bit data to compute the checksum of
- * @param len Total length of {@code data} or length of {@code data}
- *        to compute the checksum on
- *
- * @return The 16-bit one's complement checksum of {@code data}
- */
-uint16_t compute_checksum(uint16_t *data, uint16_t len) {
-
-    uint32_t sum;
-    int index;
-
-    while (len > 0) {
-        sum += data[index];
-        index++;
-    }
-
-    sum = (sum >> 16) + sum;
-    return (uint16_t)(~sum);
-}
-
-/**
- * Validate a 16-bit one's complement checksum of supplied data.
- *
- * @param data Array of 16-bit data to validate the checksum of
- * @param checksum The checksum to match against
- *
- * @return {@code true} if {@code checksum} matches the 16-bit
- * one's complement checksum of {@code data}, {@code false} otherwise
- */
-bool validate_checksum(uint16_t *data, uint16_t checksum) {
-    if (compute_checksum(data, (sizeof(data) / 2)) == checksum) {
-        return true;
-    }
-    return false;
-}
-
-/**
- * Validate that a device is allowed to control this device (by
- * checking a supplied network address against a list of valid
- * network addresses contained within this device).
- *
- * @param net_addr The network address to check against
- *
- * @return {@code true} if {@code net_addr} matches any network
- * address contained within {@link valid_net_addrs}, {@code false}
- * otherwise
- */
-bool validate_net_addr(uint16_t net_addr) {
-    for (int i = 0; i < (sizeof(valid_net_addrs) / 2); i++) {
-        if (valid_net_addrs[i] == net_addr) {
-            return true;
-        }
-    }
-    return false;
-}
-
-uint16_t _heaterMode;   /**< Current mode of the heater */
-uint16_t _heaterFlags;  /**< Current mode flags of the heater */
-uint16_t _pump1Mode;    /**< Current mode of pump 1 */
-uint16_t _pump1Flags;   /**< Current mode flags of pump 1 */
-uint16_t _pump2Mode;    /**< Current mode of pump 2 */
-uint16_t _pump2Flags;   /**< Current mode flags of pump 2 */
-uint16_t _blowerMode;   /**< Current mode of the blower fan */
-uint16_t _blowerFlags;  /**< Current mode flags of the blower fan */
-
-/**
  * Write a {@link Transaction} to the SPI bus.
  *
  * @param txn {@link Transaction} to write
  */
-void spi_write(Transaction txn) {
-    uint16_t data[8 + (txn.devices_len * 3)] = {_TXN_START, NET_ADDR, txn.txn_type, txn.sys_mode, txn.warn_flags, txn.devices_len };
-    for (int i = 0; i < txn.devices_len; i++) {
-        data[i * 3 + 6] = txn.devices->device;
-        data[i * 3 + 7] = txn.devices->mode_flags;
-        data[i * 3 + 8] = txn.devices->mode;
-    }
-    data[(sizeof(data) / 2)] = _TXN_END;
-    data[(sizeof(data) / 2)] = compute_checksum(data, (sizeof(data) / 2));
+void spi_write(ClientTransaction txn) {
+    uint16_t data[9] = {
+            _TXN_START,
+            txn.txn_type,
+            txn.sys_mode,
+            txn.warnings,
+            txn.device_info.device_id,
+            txn.device_info.mode,
+            txn.device_info.mode_flags};
 
-    for (int i = 0; i < (sizeof(data) / 2); i++) {
+    data[7] = _TXN_END;
+    data[8] = compute_checksum(data, 8);
+
+    for (int i = 0; i < 10; i++) {
         SPI.transfer16(data[i]);
     }
 }
@@ -249,128 +124,279 @@ void spi_write(Transaction txn) {
  * Read the SPI bus and build out a {@link Transaction} if one is found.
  * (Writes 16 bits to the SPI bus, and checks the response.)
  *
- * @return {TXN_NONE} if nothing is returned from the bus
- * @return {TXN_NO_START} if the first word read is not {@link _TXN_START}
- * @return {TXN_INVALID_NET_ADDR} if the second word returned is not a
- *         valid network address
- * @return {TXN_TOO_LARGE} if 128 words were read after _TXN_START and the
- *         network address without encountering {@link _TXN_END}
- * @return {TXN_EMPTY} if no words were read in between _TXN_START, the
- *         network address, and _TXN_END.
- * @return {TXN_INVALID_CHECKSUM} if the word after _TXN_END does not match
+ * @return {TransactionTypeNone} if nothing is returned from the bus
+ * @return {TransactionTypeNoStart} if the first word read is not {@link _TXN_START}
+ * @return {TransactionTypeTooLarge} if 6 words were read after _TXN_START without
+ *         encountering {@link _TXN_END}
+ * @return {TransactionTypeEmpty} if no words were read in between _TXN_START and _TXN_END.
+ * @return {TransactionTypeInvalidChecksum} if the word after _TXN_END does not match
  *         the 16-bit one's complement checksum of the data read for the
  *         current transaction
  * @return {@link Transaction} built from the data read from the SPI bus
  */
-Transaction spi_read() {
-    uint16_t buf[131] = {};
+ClientTransaction spi_read() {
+    uint16_t buf[6] = {};
     uint16_t word;
-    uint16_t net_addr;
 
-    Transaction txn;
+    ClientTransaction txn;
 
     word = SPI.transfer16(0);
 
     if (!word) {
-        return {0};
+        return {TransactionTypeNone};
     } else if (word == _TXN_START) {
-        buf[0] = word;
-        word = SPI.transfer16(0);
-        if (!validate_net_addr(word)) {
-            serial_print("Device with network address %h is not permitted to control this client\n", word);
-            return {TXN_INVALID_NET_ADDR};
-        }
-        buf[1] = net_addr;
-
         uint8_t index = 0;
         while ((word = SPI.transfer16(0)) != _TXN_END) {
-            buf[index + 2] = word;
+            buf[index] = word;
             ++index;
-            if (index > 127) {
-                serial_print("A single transaction cannot be larger than 128 words (256 bytes)\n");
-                return {TXN_TOO_LARGE};
+            if (index > 5) {
+                serial_print("A single transaction cannot be larger than 6 words (12 bytes)\n");
+                return {TransactionTypeTooLarge};
             }
         }
 
         if (index == 0) {
             serial_print("Empty transaction");
-            return {TXN_EMPTY};
+            return {TransactionTypeEmpty};
         }
 
         if (!validate_checksum(buf, SPI.transfer(0))) {
             serial_print("Corrupted transaction, failed to validate checksum\n");
-            return {TXN_INVALID_CHECKSUM};
+            return {TransactionTypeInvalidChecksum};
         }
 
-        txn.txn_type = buf[2];
-        txn.sys_mode = buf[3];
-        txn.warn_flags = buf[4];
-        txn.devices_len = buf[5];
+        txn.txn_type          = buf[0];
+        txn.sys_mode          = buf[1];
+        txn.warnings          = buf[2];
+        txn.device_info.device_id  = buf[3];
+        txn.device_info.mode       = buf[4];
+        txn.device_info.mode_flags = buf[5];
 
-        serial_print("Received transaction:\n\tTransaction Type: %h\n\tSystem Mode: %h\n\tWarning Flags: %h\n\tDevices Length: %h\n",
-                txn.txn_type, txn.sys_mode, txn.warn_flags, txn.devices_len);
-
-        for (int i = 0; i < txn.devices_len; i++) {
-            txn.devices[i].device = buf[i * 3 + 6];
-            txn.devices[i].mode_flags = buf[i * 3 + 7];
-            txn.devices[i].mode = buf[i * 3 + 8];
-            serial_print("\tDevice %d:\n\t\tID: %h\n\t\tMode Flags: %h\n\t\tMode: %h\n",
-                    i, txn.devices[i].device, txn.devices[i].mode_flags, txn.devices[i].mode);
-        }
+        serial_print("Received transaction:\n\tTransaction Type: %h\n\tSystem Mode: %h\n\tWarnings: %h\n\tDevice:\n\t\tID: %h\n\t\tMode: %h\n\t\tMode Flags: %h\n",
+                txn.txn_type, txn.sys_mode, txn.warnings, txn.device_info.device_id, txn.device_info.mode, txn.device_info.mode_flags);
 
         return txn;
     } else {
         serial_print("Corrupted transaction, transfers must begin with _TXN_START (%h), transfer began with: %h\n", _TXN_START, word);
-        return {TXN_NO_START};
+        return {TransactionTypeNoStart};
     }
 }
 
-/**
- * Stub function for controlling the heater.
- *
- * @param txn_type {@link Transaction#txn_type} from a heater-related transaction
- * @param warn_flags {@link Transaction#warn_flags} from a heater-related transaction
- * @param devices_len {@link Transaction#devices_len} from a heater-related transaction
- * @param devices {@link Transaction#devices} from a heater-related transaction
- */
-void heaterControl(uint16_t txn_type, uint16_t warn_flags, uint16_t devices_len, DeviceData *devices) {
-    return; // stub for now
+void heater_control(uint16_t mode) {
+
+    ClientTransaction txn = {};
+
+    // If the heater mode cannot be determined, abort
+    if (_heaterMode == DeviceModeErr) {
+        serial_print("Cannot determine heater mode\n");
+        txn.txn_type = TransactionTypeSysMode;
+        txn.sys_mode = SysModeError;
+        spi_write(txn);
+        return;
+    }
+
+    // If pump 1's mode cannot be determined, abort
+    if (_pump1Mode == DeviceModeErr) {
+        serial_print("Cannot determine pump 1 mode\n");
+        txn.txn_type = TransactionTypeSysMode;
+        txn.sys_mode = SysModeError;
+        spi_write(txn);
+        return;
+    }
+
+    if ((mode != DeviceModeOff) && (mode != DeviceModeOn)) {
+        serial_print("Invalid mode for heater\n");
+        txn.txn_type = TransactionTypeWarning;
+        txn.warnings = WarningInvalidDeviceMode;
+        txn.device_info.device_id = DEVICE_ID_PUMP1;
+        txn.device_info.mode = mode;
+        spi_write(txn);
+        return;
+    }
+
+    if (_heaterMode == DeviceModeOff) {
+        if (mode == DeviceModeOn) {
+            // Not safe to turn the heater on without pump 1 being on
+            if (_pump1Mode == DeviceModeOff) {
+                serial_print("Pump 1 must be turned on before heater can be turned on\n");
+                txn.txn_type = TransactionTypeWarning;
+                txn.warnings = WarningOtherDeviceMustChangeMode;
+                txn.device_info.device_id = DEVICE_ID_PUMP1;
+                txn.device_info.mode = DeviceModeOn;
+                spi_write(txn);
+                return;
+            } else if (_pump1Mode == DeviceModeOn) {
+                pulsePin(HEATER_PIN);
+                _heaterMode = mode;
+            }
+        } else if (mode == DeviceModeOff) {
+            serial_print("Heater is already off\n");
+        }
+    } else if (_heaterMode == DeviceModeOn) {
+        if (mode == DeviceModeOff) {
+            pulsePin(HEATER_PIN);
+            _heaterMode = mode;
+        } else if (mode == DeviceModeOn) {
+            serial_print("Heater is already on\n");
+        }
+    }
 }
 
-/**
- * Stub function for controlling pump 1.
- *
- * @param txn_type {@link Transaction#txn_type} from a pump 1-related transaction
- * @param warn_flags {@link Transaction#warn_flags} from a pump 1-related transaction
- * @param devices_len {@link Transaction#devices_len} from a pump 1-related transaction
- * @param devices {@link Transaction#devices} from a pump 1-related transaction
- */
-void pump1Control(uint16_t txn_type, uint16_t warn_flags, uint16_t devices_len, DeviceData *devices) {
-    return; // stub for now
+void pump1_control(uint16_t mode, uint16_t mode_flags) {
+
+    ClientTransaction txn = {};
+
+    // If pump 1's mode cannot be determined, abort
+    if (_pump1Mode == DeviceModeErr) {
+        serial_print("Cannot determine pump 1 mode\n");
+        txn.txn_type = TransactionTypeSysMode;
+        txn.sys_mode = SysModeError;
+        spi_write(txn);
+        return;
+    }
+
+    // If the heater mode cannot be determined, abort
+    if (_heaterMode == DeviceModeErr) {
+        serial_print("Cannot determine heater mode\n");
+        txn.txn_type = TransactionTypeSysMode;
+        txn.sys_mode = SysModeError;
+        spi_write(txn);
+        return;
+    }
+
+    if ((mode != DeviceModeOff) && (mode != DeviceModeOn)) {
+        serial_print("Invalid mode for pump 1\n");
+        txn.txn_type = TransactionTypeWarning;
+        txn.warnings = WarningInvalidDeviceMode;
+        txn.device_info.device_id = DEVICE_ID_PUMP1;
+        txn.device_info.mode = mode;
+        txn.device_info.mode_flags = mode_flags;
+        spi_write(txn);
+        return;
+    }
+
+    if (_pump1Mode == DeviceModeOff) {
+        if (mode == DeviceModeOn) {
+            if (mode_flags == DeviceModeFlagLow) {
+                pulsePin(PUMP1_LOW_PIN);
+                _pump1Mode = mode;
+                _pump1Flags = mode_flags;
+            } else if (mode_flags == DeviceModeFlagHigh) {
+                pulsePin(PUMP1_HIGH_PIN);
+                _pump1Mode = mode;
+                _pump1Flags = mode_flags;
+            } else {
+                txn.txn_type = TransactionTypeWarning;
+                txn.warnings = WarningInvalidDeviceModeFlags;
+                txn.device_info.device_id = DEVICE_ID_PUMP1;
+                txn.device_info.mode = mode;
+                txn.device_info.mode_flags = mode_flags;
+                spi_write(txn);
+                return;
+            }
+        } else if (mode == DeviceModeOff) {
+            serial_print("Pump 1 is already off\n");
+        }
+    } else if (_pump1Mode == DeviceModeOn) {
+        if (mode == DeviceModeOff) {
+            if (_heaterMode == DeviceModeOff) {
+                if (_pump1Flags == DeviceModeFlagLow) {
+                    pulsePin(PUMP1_LOW_PIN);
+                    _pump1Mode = mode;
+                    _pump1Flags = DeviceModeFlagNone;
+                } else if (_pump1Flags == DeviceModeFlagHigh) {
+                    pulsePin(PUMP1_HIGH_PIN);
+                    _pump1Mode = mode;
+                    _pump1Flags = DeviceModeFlagNone;
+                }
+            } else if (_heaterMode == DeviceModeOn) {
+                serial_print("Heater must be turned off before pump 1 can be turned off\n");
+                txn.txn_type = TransactionTypeWarning;
+                txn.warnings = WarningOtherDeviceMustChangeMode;
+                txn.device_info.device_id = DEVICE_ID_HEATER;
+                txn.device_info.mode = DeviceModeOff;
+                spi_write(txn);
+            }
+        }
+    }
 }
 
-/**
- * Stub function for controlling pump 2.
- *
- * @param txn_type {@link Transaction#txn_type} from a pump 2-related transaction
- * @param warn_flags {@link Transaction#warn_flags} from a pump 2-related transaction
- * @param devices_len {@link Transaction#devices_len} from a pump 2-related transaction
- * @param devices {@link Transaction#devices} from a pump 2-related transaction
- */
-void pump2Control(uint16_t txn_type, uint16_t warn_flags, uint16_t devices_len, DeviceData *devices) {
-    return; // stub for now
+void pump2_control(DeviceMode mode) {
+
+    ClientTransaction txn = {};
+
+    // If pump 2's mode cannot be determined, abort
+    if (_pump2Mode == DeviceModeErr) {
+        serial_print("Cannot determine pump 2 mode\n");
+        txn.txn_type = TransactionTypeSysMode;
+        txn.sys_mode = SysModeError;
+        spi_write(txn);
+    }
+
+    if ((mode != DeviceModeOff) && (mode != DeviceModeOn)) {
+        serial_print("Invalid mode for pump 2\n");
+        txn.txn_type = TransactionTypeWarning;
+        txn.warnings = WarningInvalidDeviceMode;
+        txn.device_info.device_id = DEVICE_ID_PUMP2;
+        txn.device_info.mode = mode;
+        spi_write(txn);
+        return;
+    }
+
+    if (_pump2Mode == DeviceModeOff) {
+        if (mode == DeviceModeOn) {
+            pulsePin(PUMP2_PIN);
+            _pump2Mode = mode;
+        } else if (mode == DeviceModeOff) {
+            serial_print("Pump 2 is already off\n");
+        }
+    } else if (_pump2Mode == DeviceModeOn) {
+        if (mode == DeviceModeOff) {
+            pulsePin(PUMP2_PIN);
+            _pump2Mode = mode;
+        } else if (mode == DeviceModeOn) {
+            serial_print("Pump 2 is already on\n");
+        }
+    }
 }
 
-/**
- * Stub function for controlling the blower.
- *
- * @param txn_type {@link Transaction#txn_type} from a blower-related transaction
- * @param warn_flags {@link Transaction#warn_flags} from a blower-related transaction
- * @param devices_len {@link Transaction#devices_len} from a blower-related transaction
- * @param devices {@link Transaction#devices} from a blower-related transaction
- */
-void blowerControl(uint16_t txn_type, uint16_t warn_flags, uint16_t devices_len, DeviceData *devices) {
-    return; // stub for now
+void blower_control(DeviceMode mode) {
+
+    ClientTransaction txn = {};
+
+    // If the blower's mode cannot be determined, abort
+    if (_blowerMode == DeviceModeErr) {
+        serial_print("Cannot determine blower mode\n");
+        txn.txn_type = TransactionTypeSysMode;
+        txn.sys_mode = SysModeError;
+        spi_write(txn);
+    }
+
+    if ((mode != DeviceModeOff) && (mode != DeviceModeOn)) {
+        serial_print("Invalid mode for blower\n");
+        txn.txn_type = TransactionTypeWarning;
+        txn.warnings = WarningInvalidDeviceMode;
+        txn.device_info.device_id = DEVICE_ID_BLOWER;
+        txn.device_info.mode = mode;
+        spi_write(txn);
+        return;
+    }
+
+    if (_blowerMode == DeviceModeOff) {
+        if (mode == DeviceModeOn) {
+            pulsePin(BLOWER_PIN);
+            _blowerMode = mode;
+        } else if (mode == DeviceModeOff) {
+            serial_print("Blower is already off\n");
+        }
+    } else if (_blowerMode == DeviceModeOn) {
+        if (mode == DeviceModeOff) {
+            pulsePin(BLOWER_PIN);
+            _blowerMode = mode;
+        } else if (mode == DeviceModeOn) {
+            serial_print("Blower is already on\n");
+        }
+    }
 }
 
 /**
@@ -382,9 +408,9 @@ void setup() {
 
     SPI.begin();
 
-    Transaction txn;
-    txn.txn_type = TXN_SYS_MODE;
-    txn.sys_mode = SYS_MODE_STARTING;
+    ClientTransaction txn;
+    txn.txn_type = TransactionTypeSysMode;
+    txn.sys_mode = SysModeStarting;
     spi_write(txn);
 
     pinMode(HEATER_PIN, OUTPUT);
@@ -394,7 +420,7 @@ void setup() {
     pinMode(BLOWER_PIN, OUTPUT);
     resetPins();
 
-    txn.sys_mode = SYS_MODE_READY;
+    txn.sys_mode = SysModeReady;
     spi_write(txn);
 }
 
@@ -402,84 +428,61 @@ void setup() {
  * Arduino main loop.
  */
 void loop() {
-    Transaction rx_txn = spi_read();
-    Transaction tx_txn = {};
+    ClientTransaction rx_txn = spi_read();
+    ClientTransaction tx_txn = {};
 
     switch(rx_txn.txn_type) {
-        case TXN_NONE:
+        case TransactionTypeNone:
             return;
-        case TXN_NO_START:
-        case TXN_EMPTY:
-        case TXN_TOO_LARGE:
-        case TXN_INVALID_CHECKSUM:
-        case TXN_INVALID_NET_ADDR:
+        case TransactionTypeNoStart:
+        case TransactionTypeEmpty:
+        case TransactionTypeTooLarge:
+        case TransactionTypeInvalidChecksum:
             serial_print("Corrupted or invalid transaction\n");
             return;
-        case TXN_SYS_MODE:
+        case TransactionTypeSysMode:
             switch(rx_txn.sys_mode) {
-                case SYS_MODE_STARTING:
-                case SYS_MODE_READY:
-                case SYS_MODE_ERROR:
-                    tx_txn.txn_type = TXN_ACK;
+                case SysModeStarting:
+                case SysModeReady:
+                case SysModeError:
+                    tx_txn.txn_type = TransactionTypeAck;
                     spi_write(tx_txn);
                     return;
-                case SYS_MODE_STOPPING:
-                    tx_txn.txn_type = (TXN_SYS_MODE | TXN_ACK);
-                    tx_txn.sys_mode = SYS_MODE_STOPPING;
+                case SysModeStopping:
+                    tx_txn.txn_type = (TransactionTypeSysMode | TransactionTypeAck);
+                    tx_txn.sys_mode = SysModeStopping;
                     spi_write(tx_txn);
                     exit(0);
-                case (SYS_MODE_STOPPING | SYS_MODE_ERROR):
-                    tx_txn.txn_type = (TXN_SYS_MODE | TXN_ACK);
-                    tx_txn.sys_mode = SYS_MODE_STOPPING;
+                case (SysModeStopping | SysModeError):
+                    tx_txn.txn_type = (TransactionTypeSysMode | TransactionTypeAck);
+                    tx_txn.sys_mode = SysModeStopping;
                     spi_write(tx_txn);
-                    exit(-2);
+                    exit(-1);
                 default:
                     break;
             }
             break;
-        case TXN_SRVR_CHANGE_DEVICE_MODE:
-        case TXN_USER_CHANGE_DEVICE_MODE:
-            for (int i = 0; i < rx_txn.devices_len; i++) {
-                switch(rx_txn.devices[i].device) {
-                    case DEVICE_HEATER:
-                        heaterControl(rx_txn.txn_type, rx_txn.warn_flags, rx_txn.devices_len, rx_txn.devices);
-                        break;
-                    case DEVICE_PUMP1:
-                        pump1Control(rx_txn.txn_type, rx_txn.warn_flags, rx_txn.devices_len, rx_txn.devices);
-                        break;
-                    case DEVICE_PUMP2:
-                        pump2Control(rx_txn.txn_type, rx_txn.warn_flags, rx_txn.devices_len, rx_txn.devices);
-                        break;
-                    case DEVICE_BLOWER:
-                        blowerControl(rx_txn.txn_type, rx_txn.warn_flags, rx_txn.devices_len, rx_txn.devices);
-                        break;
-                    default:
-                        serial_print("Device with ID %h not found\n", rx_txn.devices[i]);
-                        break;
-                }
-            }
-            break;
-        case TXN_WARNING_RESPONSE:
-            switch(rx_txn.devices[0].device) {
-                case DEVICE_HEATER:
-                    heaterControl(rx_txn.txn_type, rx_txn.warn_flags, rx_txn.devices_len, rx_txn.devices);
+        case TransactionTypeControllerChangeDeviceMode:
+            switch (rx_txn.device_info.device_id) {
+                case DEVICE_ID_HEATER:
+                    heater_control(rx_txn.device_info.mode);
                     break;
-                case DEVICE_PUMP1:
-                    pump1Control(rx_txn.txn_type, rx_txn.warn_flags, rx_txn.devices_len, rx_txn.devices);
+                case DEVICE_ID_PUMP1:
+                    pump1_control(rx_txn.device_info.mode, rx_txn.device_info.mode_flags);
                     break;
-                case DEVICE_PUMP2:
-                    pump2Control(rx_txn.txn_type, rx_txn.warn_flags, rx_txn.devices_len, rx_txn.devices);
+                case DEVICE_ID_PUMP2:
+                    pump2_control(rx_txn.device_info.mode);
                     break;
-                case DEVICE_BLOWER:
-                    blowerControl(rx_txn.txn_type, rx_txn.warn_flags, rx_txn.devices_len, rx_txn.devices);
+                case DEVICE_ID_BLOWER:
+                    blower_control(rx_txn.device_info.mode);
                     break;
                 default:
-                    serial_print("Device with ID %h not found\n", rx_txn.devices[0]);
+                    serial_print("Device with ID %h not found\n", rx_txn.device_info.device_id);
                     break;
             }
             break;
         default:
-            serial_print("Transaction type with ID %h not found\n", rx_txn.txn_type);
+            serial_print("Transaction type with ID %h not applicable for this device\n", rx_txn.txn_type);
             break;
     }
 }

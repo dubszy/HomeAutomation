@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include <core/Device.hpp>
-#include <types/NetAddr.h>
+#include <types/network_types.h>
 
 typedef struct {
     NetAddr net_addr;

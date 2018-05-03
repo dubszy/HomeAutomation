@@ -1,4 +1,4 @@
-#include "SerialDeviceManager.hpp"
+#include "../../../include/utils/DeviceManager/SerialDeviceManager.hpp"
 
 SerialDeviceManager *SerialDeviceManager::getSharedSerialDeviceManager() {
     if (!sharedSerialDeviceManager) {

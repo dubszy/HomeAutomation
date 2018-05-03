@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <core/Device.hpp>
-#include <types/network_types.h>
+#include "../../types/network_types.h"
 
 typedef struct {
     NetAddr net_addr;

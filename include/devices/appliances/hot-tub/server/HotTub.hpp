@@ -4,12 +4,12 @@
 #include <core/SPIDevice.hpp>
 #include <devices/environment/temperature/thermometers/DS18B20.hpp>
 
-#include <devices/appliances/Appliance.hpp>
+#include "../../Appliance.hpp"
 #include <types/device_types.h>
 
-#include <devices/appliances/hot-tub/subdevices/Blower.hpp>
-#include <devices/appliances/hot-tub/subdevices/Heater.hpp>
-#include <devices/appliances/hot-tub/subdevices/Pump.hpp>
+#include "../subdevices/Blower.hpp"
+#include "../subdevices/Heater.hpp"
+#include "../subdevices/Pump.hpp"
 
 /* Network Address */
 #define NET_ADDR    0x3220

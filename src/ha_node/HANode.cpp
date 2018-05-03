@@ -7,8 +7,8 @@
 #include <utility>
 
 #include <Properties.hpp>
-#include "types.h"
-#include "HANode.hpp"
+#include "../../include/ha_node/types.h"
+#include "../../include/ha_node/HANode.hpp"
 
 static Logger *log = Logger::forClass<HANode>(LogLevelWarning);
 

@@ -1,6 +1,6 @@
 #include <string>
 
-#include <types/network_types.h>
+#include "../types/network_types.h"
 
 using namespace std;
 

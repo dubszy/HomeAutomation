@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include "DeviceManager.hpp"
+#include "../../../include/utils/DeviceManager/DeviceManager.hpp"
 
 DeviceManager *DeviceManager::getSharedDeviceManager() {
     if (DeviceManager::sharedDeviceManager == nullptr) {

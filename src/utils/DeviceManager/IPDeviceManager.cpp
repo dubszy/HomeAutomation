@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <zconf.h>
 
-#include "IPDeviceManager.hpp"
+#include "../../../include/utils/DeviceManager/IPDeviceManager.hpp"
 
 IPDeviceManager *IPDeviceManager::getSharedIPDeviceManager() {
     if (sharedIPDeviceManager == NULL) {

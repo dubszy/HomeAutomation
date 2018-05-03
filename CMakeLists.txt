@@ -3,10 +3,15 @@ project(HomeAutomation)
 
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(src)
-include_directories(../drivers/src)
-include_directories(../Logger/src/c++)
-include_directories(../PropertiesManager/src)
+include_directories(include)
+include_directories(../drivers/include)
+include_directories(../Logger/include/c++)
+include_directories(../PropertiesManager/include)
+
+link_directories(../drivers/cmake-build-debug)
+link_directories(../Logger/cmake-build-debug)
+link_directories(../PropertiesManager/cmake-build-debug)
+
 
 ### Daemons and Utilities ###
 
@@ -16,9 +21,12 @@ add_executable(hanoded
 
 # Device Manager
 add_executable(DeviceManager
+        ../drivers/src/core/system/system_context.c
         src/utils/DeviceManager/DeviceManager.cpp
         src/utils/DeviceManager/IPDeviceManager.cpp
         src/utils/DeviceManager/SerialDeviceManager.cpp)
+
+target_link_libraries(DeviceManager liblogger.a)
 
 ### Appliances ###
 

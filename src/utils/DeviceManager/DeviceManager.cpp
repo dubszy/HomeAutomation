@@ -1,16 +1,16 @@
-#include <stdio.h>
+#include <cstdio>
 
 #include "DeviceManager.hpp"
 
-static DeviceManager DeviceManager::getSharedDeviceManager() {
-    if (!sharedDeviceManager) {
-        sharedDeviceManager = new DeviceManager(65536);
+DeviceManager *DeviceManager::getSharedDeviceManager() {
+    if (DeviceManager::sharedDeviceManager == nullptr) {
+        DeviceManager::sharedDeviceManager = new DeviceManager(65536);
     }
-    return sharedDeviceManager;
+    return DeviceManager::sharedDeviceManager;
 }
 
 int DeviceManager::addDevice(Device *device, NetAddr addr) {
-    if (device == NULL) {
+    if (device == nullptr) {
         printf("Device to add cannot be null\n");
         return -1;
     }
@@ -20,12 +20,12 @@ int DeviceManager::addDevice(Device *device, NetAddr addr) {
         return -2;
     }
 
-    if (devices[maxDevices - 1] != NULL) {
+    if (devices.size() == maxDevices - 1) {
         printf("Maximum devices for this device manager instance is %d\n", maxDevices);
         return -3;
     }
 
-    if (getDevice(addr) != NULL) {
+    if (getDevice(addr) != nullptr) {
         printf("Device with network address %d already added\n", addr);
         return -4;
     }
@@ -37,12 +37,14 @@ int DeviceManager::addDevice(Device *device, NetAddr addr) {
 
 int DeviceManager::removeDevice(NetAddr addr) {
     for (int i = 0; i < maxDevices; i++) {
-        if (devices[i].net_addr == addr) {
-            devices[i] == NULL;
+        if (devices.at(i).net_addr == addr) {
+            devices.at(i).net_addr = 0;
+            devices.at(i).device = nullptr;
             for (int j = i; j < (maxDevices - (i + 1)); j++) {
                 devices[j] = devices[j + 1];
             }
-            devices[(maxDevices - 1)] = NULL;
+            devices.at(maxDevices - 1).net_addr = 0;
+            devices.at(maxDevices - 1).device = nullptr;
             return i;
         }
     }
@@ -51,10 +53,10 @@ int DeviceManager::removeDevice(NetAddr addr) {
 }
 
 Device *DeviceManager::getDevice(NetAddr addr) {
-    for (int i = 0; i < maxDevices; i++) {
-        if (devices[i].net_addr == addr) {
-            return devices[i].device;
+    for (unsigned long i = 0; i < maxDevices; i++) {
+        if (devices.at(i).net_addr == addr) {
+            return devices.at(i).device;
         }
     }
-    return NULL;
+    return nullptr;
 }

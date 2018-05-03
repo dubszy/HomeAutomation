@@ -13,18 +13,18 @@ typedef struct {
 class SerialDeviceManager : DeviceManager {
 
     protected:
-        static SerialDeviceManager sharedSerialDeviceManager;
+        static SerialDeviceManager *sharedSerialDeviceManager;
 
     public:
         SerialDeviceManager(uint32_t maxDevices) : DeviceManager(maxDevices) {}
 
-        static SerialDeviceManager getSharedSerialDeviceManager();
+        static SerialDeviceManager *getSharedSerialDeviceManager();
         int addDevice(SerialDevice *device, NetAddr addr);
         int removeDevice(NetAddr addr);
         SerialDevice *getDevice(NetAddr addr);
 
-        SerialDeviceMap *discoverLocalDevices();
-        SerialDeviceMap *discoverDevicesOnLAN();
+        vector<SerialDeviceMap> discoverLocalDevices();
+        vector<SerialDeviceMap> discoverDevicesOnLAN();
 };
 
 #endif /* _SERIAL_DEVICE_MANAGER_HPP_ */

@@ -1,6 +1,6 @@
 #include "SerialDeviceManager.hpp"
 
-static SerialDeviceManager SerialDeviceManager::getSharedSerialDeviceManager() {
+SerialDeviceManager *SerialDeviceManager::getSharedSerialDeviceManager() {
     if (!sharedSerialDeviceManager) {
         sharedSerialDeviceManager = new SerialDeviceManager(65536);
     }
@@ -19,17 +19,17 @@ SerialDevice *SerialDeviceManager::getDevice(NetAddr addr) {
     return (SerialDevice *)DeviceManager::getDevice(addr);
 }
 
-SerialDeviceMap *SerialDeviceManager::discoverLocalDevices() {
-    SerialDeviceMap localDevices[65536] = malloc(65536*sizeof(SerialDeviceMap));
+vector<SerialDeviceMap> SerialDeviceManager::discoverLocalDevices() {
+    vector<SerialDeviceMap> localDevices = vector<SerialDeviceMap>(1024);
 
     return localDevices;
 }
 
-SerialDeviceMap *SerialDeviceManager::discoverDevicesOnLAN() {
-    SerialDeviceMap lanDevices[65536] = malloc(65536*sizeof(SerialDeviceMap));
+vector<SerialDeviceMap> SerialDeviceManager::discoverDevicesOnLAN() {
+    vector<SerialDeviceMap> lanDevices = vector<SerialDeviceMap>(2048);
 
-    SerialDeviceMap *localDevices = discoverLocalDevices();
-    for (int i = 0; i < (sizeof(localDevices) / sizeof(SerialDeviceMap)); i++) {
+    vector<SerialDeviceMap> localDevices = discoverLocalDevices();
+    for (int i = 0; i < (localDevices.size() / sizeof(SerialDeviceMap)); i++) {
         lanDevices[i] = localDevices[i];
     }
 

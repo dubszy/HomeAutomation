@@ -46,7 +46,7 @@ typedef enum {
  *
  * @return The 16-bit one's complement checksum of {@code data}
  */
-inline uint16_t compute_checksum(uint16_t *data, uint16_t len) const {
+inline uint16_t compute_checksum(uint16_t *data, uint16_t len) {
 
     uint32_t sum;
     int index;
@@ -69,7 +69,7 @@ inline uint16_t compute_checksum(uint16_t *data, uint16_t len) const {
  * @return {@code true} if {@code checksum} matches the 16-bit
  * one's complement checksum of {@code data}, {@code false} otherwise
  */
-inline bool validate_checksum(uint16_t *data, uint16_t checksum) const {
+inline bool validate_checksum(uint16_t *data, uint16_t checksum) {
     if (compute_checksum(data, (sizeof(data) / 2)) == checksum) {
         return true;
     }

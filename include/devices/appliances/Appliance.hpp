@@ -1,7 +1,7 @@
 #ifndef _APPLIANCE_HPP_
 #define _APPLIANCE_HPP_
 
-#include <core/Device.hpp>
+#include <devices/core/Device.hpp>
 
 class Appliance : public Device {
 
@@ -12,3 +12,5 @@ private:
 public:
     Appliance(string name) : Device(name) {};
 };
+
+#endif /* _APPLIANCE_HPP_ */

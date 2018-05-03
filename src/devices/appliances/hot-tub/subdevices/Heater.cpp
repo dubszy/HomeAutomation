@@ -1,4 +1,4 @@
-#include "../../../../../include/devices/appliances/hot-tub/subdevices/Heater.hpp"
+#include <devices/appliances/hot-tub/subdevices/Heater.hpp>
 
 uint16_t Heater::getDeviceID() const {
     return device_id_;

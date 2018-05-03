@@ -1,4 +1,4 @@
-#include "../../../../../include/devices/appliances/hot-tub/subdevices/Blower.hpp"
+#include <devices/appliances/hot-tub/subdevices/Blower.hpp>
 
 uint16_t Blower::getDeviceID() const {
     return device_id_;

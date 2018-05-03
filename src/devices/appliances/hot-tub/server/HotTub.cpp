@@ -1,10 +1,7 @@
-#include "../../../../../include/devices/appliances/hot-tub/server/HotTub.hpp"
+#include <devices/appliances/hot-tub/server/HotTub.hpp>
 
-#include <errno.h>
-#include <fcntl.h>
-
-HotTub::HotTub(string name) : Appliance(name) {
-    client_ = new SPIDevice(0, 1000000, 16);
+HotTub::HotTub(string name) : Appliance(std::move(name)) {
+    client_ = new SPIDevice("Client", 0, 1000000, 16);
 
     zone0_thermo_ = new DS18B20(string("Heater Thermometer"), 0);
     zone1_thermo_ = new DS18B20(string("Pump 1 Zone Thermometer"), 0);

@@ -1,7 +1,7 @@
 #ifndef _DEVICE_TYPES_H_
 #define _DEVICE_TYPES_H_
 
-#include <core/Device.hpp>
+#include <devices/core/Device.hpp>
 #include "network_types.h"
 
 #define DEVICE_ID_NOT_INIT  0xEFF0

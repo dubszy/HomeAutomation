@@ -1,7 +1,6 @@
 #ifndef _HOT_TUB_PUMP_HPP_
 #define _HOT_TUB_PUMP_HPP_
 
-#include <core/Device.hpp>
 #include <types/device_types.h>
 
 class Pump : public Device {

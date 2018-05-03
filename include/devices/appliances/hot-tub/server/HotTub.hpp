@@ -1,15 +1,15 @@
 #ifndef _HOT_TUB_SERVER_HPP_
 #define _HOT_TUB_SERVER_HPP_
 
-#include <core/SPIDevice.hpp>
+#include <devices/core/SPIDevice.hpp>
 #include <devices/environment/temperature/thermometers/DS18B20.hpp>
 
-#include "../../Appliance.hpp"
+#include <devices/appliances/Appliance.hpp>
 #include <types/device_types.h>
 
-#include "../subdevices/Blower.hpp"
-#include "../subdevices/Heater.hpp"
-#include "../subdevices/Pump.hpp"
+#include <devices/appliances/hot-tub/subdevices/Blower.hpp>
+#include <devices/appliances/hot-tub/subdevices/Heater.hpp>
+#include <devices/appliances/hot-tub/subdevices/Pump.hpp>
 
 /* Network Address */
 #define NET_ADDR    0x3220
@@ -36,6 +36,23 @@ typedef struct {
 
 class HotTub : public Appliance {
 
+public:
+    HotTub(string name = string("Hot Tub"));
+
+    ~HotTub() {}
+
+    int changeDeviceMode(BasicDeviceInfo device_info);
+
+    DS18B20 *getZone0Thermo() { return zone0_thermo_; }
+    DS18B20 *getZone1Thermo() { return zone1_thermo_; }
+    DS18B20 *getZone2Thermo() { return zone2_thermo_; }
+    DS18B20 *getZone3Thermo() { return zone3_thermo_; }
+
+    int changeHeaterMode(DeviceMode mode);
+    int changePump1Mode(DeviceMode mode, DeviceModeFlag mode_flags);
+    int changePump2Mode(DeviceMode mode);
+    int changeBlowerMode(DeviceMode mode);
+
 private:
     HotTub(const HotTub&);
     HotTub& operator=(const HotTub&);
@@ -54,21 +71,6 @@ private:
 
     int clientWrite(ClientTransaction txn);
     Transaction clientRead();
-
-public:
-    HotTub(string name = string("Hot Tub"));
-
-    int changeDeviceMode(BasicDeviceInfo device_info);
-
-    DS18B20 *getZone0Thermo() { return zone0_thermo_; }
-    DS18B20 *getZone1Thermo() { return zone1_thermo_; }
-    DS18B20 *getZone2Thermo() { return zone2_thermo_; }
-    DS18B20 *getZone3Thermo() { return zone3_thermo_; }
-
-    int changeHeaterMode(DeviceMode mode);
-    int changePump1Mode(DeviceMode mode, DeviceModeFlag mode_flags);
-    int changePump2Mode(DeviceMode mode);
-    int changeBlowerMode(DeviceMode mode);
 };
 
 #endif /* _HOT_TUB_SERVER_HPP_ */

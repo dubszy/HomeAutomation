@@ -48,3 +48,5 @@ typedef struct {
     Warning warnings;
     DeviceData device;
 } Transaction;
+
+#endif /* _DEVICE_TYPES_H_ */

@@ -54,6 +54,7 @@ inline uint16_t compute_checksum(uint16_t *data, uint16_t len) {
     while (len > 0) {
         sum += data[index];
         index++;
+        len++;
     }
 
     sum = (sum >> 16) + sum;
@@ -88,7 +89,7 @@ inline bool validate_checksum(uint16_t *data, uint16_t checksum) {
  * address contained within {@code valid_net_addrs}, {@code false}
  * otherwise
  */
-bool validate_net_addr(uint16_t net_addr, uint16_t *valid_net_addrs) {
+inline bool validate_net_addr(uint16_t net_addr, uint16_t *valid_net_addrs) {
     for (int i = 0; i < (sizeof(valid_net_addrs) / 2); i++) {
         if (valid_net_addrs[i] == net_addr) {
             return true;

@@ -16,7 +16,7 @@ static HANode *haNode = new HANode(new Properties("/etc/homeautomation/ha_node/d
                                    vector<IPAddress>(1, {10, 0, 0, 0}));
 
 HANode::HANode(Properties *properties, vector<IPAddress> permittedClients) {
-    this->port = properties->get("ha_node.port")->valueAsNumber();
+    this->port = properties->get("ha_node.port")->valueAsNumber<NetAddr>();
     this->permittedClients = std::move(permittedClients);
 }
 
@@ -136,7 +136,7 @@ int HANode::response(char *buf) {
 }
 
 NetAddr HANode::getNetAddr() {
-    return properties->get("ha_node.net_addr")->valueAsNumber();
+    return properties->get("ha_node.net_addr")->valueAsNumber<NetAddr>();
 }
 
 const char *HANode::getOS() {

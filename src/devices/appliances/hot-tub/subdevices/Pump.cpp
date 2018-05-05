@@ -1,7 +1,10 @@
+#include <iomanip>
+#include <sstream>
+
 #include <devices/appliances/hot-tub/subdevices/Pump.hpp>
 
 uint16_t Pump::getDeviceID() const {
-    return device_id_;
+    return deviceID_;
 }
 
 DeviceMode Pump::getDeviceMode() const {
@@ -13,25 +16,37 @@ void Pump::setDeviceMode(DeviceMode mode) {
 }
 
 DeviceModeFlag Pump::getDeviceModeFlags() const {
-    return mode_flags_;
+    return modeFlags_;
 }
 
-void Pump::setDeviceModeFlags(DeviceModeFlag mode_flags) {
-    mode_flags_ = mode_flags;
+void Pump::setDeviceModeFlags(DeviceModeFlag modeFlags) {
+    modeFlags_ = modeFlags;
 }
 
 bool Pump::isManualControl() const {
-    return manual_control_;
+    return manualControl_;
 }
 
-void Pump::setManualControl(bool manual_control) {
-    manual_control_ = manual_control;
+void Pump::setManualControl(bool manualControl) {
+    manualControl_ = manualControl;
 }
 
 NetAddr Pump::getControllerNetAddr() const {
-    return controller_net_addr_;
+    return controllerNetAddr_;
 }
 
-void Pump::setControllerNetAddr(NetAddr controller_net_addr) {
-    controller_net_addr_ = controller_net_addr;
+void Pump::setControllerNetAddr(NetAddr controllerNetAddr) {
+    controllerNetAddr_ = controllerNetAddr;
+}
+
+string Pump::toString() {
+    stringstream sstream;
+    sstream << "Pump: { Name: " << name_
+            << ", Device ID: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << deviceID_
+            << ", Device Mode: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << mode_
+            << ", Mode Flags: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std:: hex << modeFlags_
+            << ", Manual Control: " << manualControl_
+            << ", Controller Net Address: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << controllerNetAddr_
+            << " }";
+    return sstream.str();
 }

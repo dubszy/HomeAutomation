@@ -1,7 +1,10 @@
+#include <iomanip>
+#include <sstream>
+
 #include <devices/appliances/hot-tub/subdevices/Heater.hpp>
 
 uint16_t Heater::getDeviceID() const {
-    return device_id_;
+    return deviceID_;
 }
 
 DeviceMode Heater::getDeviceMode() const {
@@ -13,17 +16,28 @@ void Heater::setDeviceMode(DeviceMode mode) {
 }
 
 bool Heater::isManualControl() const {
-    return manual_control_;
+    return manualControl_;
 }
 
-void Heater::setManualControl(bool manual_control) {
-    manual_control_ = manual_control;
+void Heater::setManualControl(bool manualControl) {
+    manualControl_ = manualControl;
 }
 
 NetAddr Heater::getControllerNetAddr() const {
-    return controller_net_addr_;
+    return controllerNetAddr_;
 }
 
-void Heater::setControllerNetAddr(NetAddr controller_net_addr) {
-    controller_net_addr_ = controller_net_addr;
+void Heater::setControllerNetAddr(NetAddr controllerNetAddr) {
+    controllerNetAddr_ = controllerNetAddr;
+}
+
+string Heater::toString() {
+    stringstream sstream;
+    sstream << "Heater: { Name: " << name_
+            << ", Device ID: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << deviceID_
+            << ", Mode: 0x"  << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << mode_
+            << ", Manual Control: " << manualControl_
+            << ", Controller Net Address: 0x"  << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << controllerNetAddr_
+            << " }";
+    return sstream.str();
 }

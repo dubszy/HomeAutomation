@@ -11,8 +11,7 @@
 #include <devices/appliances/hot-tub/subdevices/Heater.hpp>
 #include <devices/appliances/hot-tub/subdevices/Pump.hpp>
 
-/* Network Address */
-#define NET_ADDR    0x3220
+#include <logger/c++/Logger.hpp>
 
 /* Device IDs */
 #define DEVICE_ID_HEATER    0x0001
@@ -37,25 +36,30 @@ typedef struct {
 class HotTub : public Appliance {
 
 public:
-    HotTub(string name = string("Hot Tub"));
+    HotTub(string name = "Hot Tub", NetAddr netAddr = 0);
 
-    ~HotTub() {}
+    ~HotTub();
+
+    DS18B20 *getZone0Thermo();
+    DS18B20 *getZone1Thermo();
+    DS18B20 *getZone2Thermo();
+    DS18B20 *getZone3Thermo();
 
     int changeDeviceMode(BasicDeviceInfo device_info);
-
-    DS18B20 *getZone0Thermo() { return zone0_thermo_; }
-    DS18B20 *getZone1Thermo() { return zone1_thermo_; }
-    DS18B20 *getZone2Thermo() { return zone2_thermo_; }
-    DS18B20 *getZone3Thermo() { return zone3_thermo_; }
-
     int changeHeaterMode(DeviceMode mode);
     int changePump1Mode(DeviceMode mode, DeviceModeFlag mode_flags);
     int changePump2Mode(DeviceMode mode);
     int changeBlowerMode(DeviceMode mode);
 
+    void selfTest();
+
+    string toString();
+
 private:
     HotTub(const HotTub&);
     HotTub& operator=(const HotTub&);
+
+    NetAddr netAddr_;
 
     SPIDevice *client_; // Arduino
 
@@ -71,6 +75,8 @@ private:
 
     int clientWrite(ClientTransaction txn);
     Transaction clientRead();
+
+    Logger *log = Logger::forClass<HotTub>(LogLevelInfo);
 };
 
 #endif /* _HOT_TUB_SERVER_HPP_ */

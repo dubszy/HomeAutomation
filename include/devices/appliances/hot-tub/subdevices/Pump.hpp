@@ -5,38 +5,28 @@
 
 class Pump : public Device {
 
-private:
-    Pump(const Pump&);
-    Pump& operator=(const Pump&);
-
-    uint16_t device_id_;
-    DeviceMode mode_;
-    DeviceModeFlag mode_flags_;
-    bool manual_control_;
-    NetAddr controller_net_addr_;
-
 public:
     Pump( string name = "Pump",
-          uint16_t device_id = DEVICE_ID_NOT_INIT,
+          uint16_t deviceID = DEVICE_ID_NOT_INIT,
           DeviceMode mode = DeviceModeNotInit,
-          DeviceModeFlag mode_flags = DeviceModeFlagNone,
-          bool manual_control = false,
-          NetAddr controller_net_addr = 0)
+          DeviceModeFlag modeFlags = DeviceModeFlagNone,
+          bool manualControl = false,
+          NetAddr controllerNetAddr = 0)
       : Device(name),
-        device_id_(device_id),
+        deviceID_(deviceID),
         mode_(mode),
-        mode_flags_(mode_flags),
-        manual_control_(manual_control),
-        controller_net_addr_(controller_net_addr)
+        modeFlags_(modeFlags),
+        manualControl_(manualControl),
+        controllerNetAddr_(controllerNetAddr)
       {};
 
-    Pump(string name, uint16_t device_id, NetAddr controller_net_addr)
+    Pump(string name, uint16_t deviceID, NetAddr controllerNetAddr)
       : Device(string(name)),
-        device_id_(device_id),
+        deviceID_(deviceID),
         mode_(DeviceModeNotInit),
-        mode_flags_(DeviceModeFlagNone),
-        manual_control_(false),
-        controller_net_addr_(controller_net_addr)
+        modeFlags_(DeviceModeFlagNone),
+        manualControl_(false),
+        controllerNetAddr_(controllerNetAddr)
       {};
 
     uint16_t getDeviceID() const;
@@ -44,11 +34,23 @@ public:
     DeviceMode getDeviceMode() const;
     void setDeviceMode(DeviceMode mode);
     DeviceModeFlag getDeviceModeFlags() const;
-    void setDeviceModeFlags(DeviceModeFlag mode_flags);
+    void setDeviceModeFlags(DeviceModeFlag modeFlags);
     bool isManualControl() const;
-    void setManualControl(bool manual_control);
+    void setManualControl(bool manualControl);
     NetAddr getControllerNetAddr() const;
-    void setControllerNetAddr(NetAddr controller_net_addr);
+    void setControllerNetAddr(NetAddr controllerNetAddr);
+
+    string toString();
+
+private:
+    Pump(const Pump&);
+    Pump& operator=(const Pump&);
+
+    uint16_t deviceID_;
+    DeviceMode mode_;
+    DeviceModeFlag modeFlags_;
+    bool manualControl_;
+    NetAddr controllerNetAddr_;
 };
 
 #endif /* _HOT_TUB_PUMP_HPP_ */

@@ -1,17 +1,30 @@
 #include <devices/appliances/hot-tub/server/HotTub.hpp>
+#include <iomanip>
 
-HotTub::HotTub(string name) : Appliance(std::move(name)) {
+HotTub::HotTub(string name, NetAddr netAddr)
+        : netAddr_(netAddr), Appliance(name) { // NOLINT do not std::move 'name'
+    log->debug("Initializing new Hot Tub");
+    log->info("Hot Tub: " + toString());
     client_ = new SPIDevice("Client", 0, 1000000, 16);
+    log->info("Client: " + client_->toString());
 
-    zone0_thermo_ = new DS18B20(string("Heater Thermometer"), 0);
-    zone1_thermo_ = new DS18B20(string("Pump 1 Zone Thermometer"), 0);
-    zone2_thermo_ = new DS18B20(string("Pump 2 Zone Thermometer"), 0);
-    zone3_thermo_ = new DS18B20(string("Footwell Thermometer"), 0);
+    zone0_thermo_ = new DS18B20("Heater Thermometer", ScaleCelsius, 2, "1234567890AB");
+    log->info("Zone 0 Thermo: " + zone0_thermo_->toString());
+    zone1_thermo_ = new DS18B20("Pump 1 Zone Thermometer", ScaleCelsius, 2, "1234567890AB");
+    log->info("Zone 1 Thermo: " + zone1_thermo_->toString());
+    zone2_thermo_ = new DS18B20("Pump 2 Zone Thermometer", ScaleCelsius, 2, "1234567890AB");
+    log->info("Zone 2 Thermo: " + zone2_thermo_->toString());
+    zone3_thermo_ = new DS18B20("Footwell Thermometer", ScaleCelsius, 2, "1234567890AB");
+    log->info("Zone 3 Thermo: " + zone3_thermo_->toString());
 
-    heater_ = new Heater(DEVICE_ID_HEATER, NET_ADDR);
-    pump1_ = new Pump(string("Pump 1"), DEVICE_ID_PUMP1, NET_ADDR);
-    pump2_ = new Pump(string("Pump 2"), DEVICE_ID_PUMP2, NET_ADDR);
-    blower_ = new Blower(DEVICE_ID_BLOWER, NET_ADDR);
+    heater_ = new Heater(DEVICE_ID_HEATER, netAddr_);
+    log->info("Heater: " + heater_->toString());
+    pump1_ = new Pump(string("Pump 1"), DEVICE_ID_PUMP1, netAddr_);
+    log->info("Pump 1: " + pump1_->toString());
+    pump2_ = new Pump(string("Pump 2"), DEVICE_ID_PUMP2, netAddr_);
+    log->info("Pump 2: " + pump2_->toString());
+    blower_ = new Blower(DEVICE_ID_BLOWER, netAddr_);
+    log->info("Blower: " + blower_->toString());
 }
 
 HotTub::~HotTub() {
@@ -29,17 +42,33 @@ HotTub::~HotTub() {
 int HotTub::clientWrite(ClientTransaction txn) {
     uint16_t data[9] = {
             _TXN_START,
-            txn.txn_type,
-            txn.sys_mode,
-            txn.warnings,
+            (uint16_t)txn.txn_type,
+            (uint16_t)txn.sys_mode,
+            (uint16_t)txn.warnings,
             txn.device_info.device_id,
-            txn.device_info.mode,
-            txn.device_info.mode_flags};
+            (uint16_t)txn.device_info.mode,
+            (uint16_t)txn.device_info.mode_flags};
 
     data[7] = _TXN_END;
     data[8] = compute_checksum(data, 8);
 
     return client_->transact16(data, 9);
+}
+
+DS18B20 *HotTub::getZone0Thermo() {
+    return zone0_thermo_;
+}
+
+DS18B20 *HotTub::getZone1Thermo() {
+    return zone1_thermo_;
+}
+
+DS18B20 *HotTub::getZone2Thermo() {
+    return zone2_thermo_;
+}
+
+DS18B20 *HotTub::getZone3Thermo() {
+    return zone3_thermo_;
 }
 
 int HotTub::changeDeviceMode(BasicDeviceInfo device_info) {
@@ -79,3 +108,17 @@ int HotTub::changeBlowerMode(DeviceMode mode) {
     return changeDeviceMode(device_info);
 }
 
+void HotTub::selfTest() {
+    log->info("Zone 0 Temperature: %f", zone0_thermo_->getTemperature());
+    log->info("Zone 1 Temperature: %f", zone1_thermo_->getTemperature());
+    log->info("Zone 2 Temperature: %f", zone2_thermo_->getTemperature());
+    log->info("Zone 3 Temperature: %f", zone3_thermo_->getTemperature());
+}
+
+string HotTub::toString() {
+    stringstream sstream;
+    sstream << "Hot Tub: { name: " << name_
+            << ", Net Address: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << netAddr_
+            << " }";
+    return sstream.str();
+}

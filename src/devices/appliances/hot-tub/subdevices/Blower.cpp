@@ -1,7 +1,10 @@
+#include <iomanip>
+#include <sstream>
+
 #include <devices/appliances/hot-tub/subdevices/Blower.hpp>
 
 uint16_t Blower::getDeviceID() const {
-    return device_id_;
+    return deviceID_;
 }
 
 DeviceMode Blower::getDeviceMode() const {
@@ -13,17 +16,28 @@ void Blower::setDeviceMode(DeviceMode mode) {
 }
 
 bool Blower::isManualControl() const {
-    return manual_control_;
+    return manualControl_;
 }
 
-void Blower::setManualControl(bool manual_control) {
-    manual_control_ = manual_control;
+void Blower::setManualControl(bool manualControl) {
+    manualControl_ = manualControl;
 }
 
 NetAddr Blower::getControllerNetAddr() const {
-    return controller_net_addr_;
+    return controllerNetAddr_;
 }
 
-void Blower::setControllerNetAddr(NetAddr controller_net_addr) {
-    controller_net_addr_ = controller_net_addr;
+void Blower::setControllerNetAddr(NetAddr controllerNetAddr) {
+    controllerNetAddr_ = controllerNetAddr;
+}
+
+string Blower::toString() {
+    stringstream sstream;
+    sstream << "Pump: { Name: " << name_
+            << ", Device ID: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << deviceID_
+            << ", Device Mode: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << mode_
+            << ", Manual Control: " << manualControl_
+            << ", Controller Net Address: 0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << controllerNetAddr_
+            << " }";
+    return sstream.str();
 }

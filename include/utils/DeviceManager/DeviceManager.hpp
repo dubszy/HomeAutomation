@@ -4,8 +4,8 @@
 #include <cstdlib>
 #include <vector>
 
-#include <core/Device.hpp>
-#include "../../types/network_types.h"
+#include <devices/core/Device.hpp>
+#include <types/network_types.h>
 
 typedef struct {
     NetAddr net_addr;

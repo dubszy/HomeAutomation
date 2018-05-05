@@ -1,7 +1,7 @@
 #include <netinet/in.h>
 
-#include <core/types/ip_types.h>
-#include <Logger.hpp>
+#include <types/ip_types.h>
+#include <logger/c++/Logger.hpp>
 #include <vector>
 
 #include <Properties.hpp>

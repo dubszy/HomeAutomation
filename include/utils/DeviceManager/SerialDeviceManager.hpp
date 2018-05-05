@@ -1,7 +1,7 @@
 #ifndef _SERIAL_DEVICE_MANAGER_HPP_
 #define _SERIAL_DEVICE_MANAGER_HPP_
 
-#include <core/SerialDevice.hpp>
+#include <devices/core/SerialDevice.hpp>
 
 #include "DeviceManager.hpp"
 

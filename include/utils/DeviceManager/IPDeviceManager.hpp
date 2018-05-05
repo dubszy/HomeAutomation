@@ -1,6 +1,6 @@
 #include <vector>
 
-#include <core/IPDevice.hpp>
+#include <devices/core/IPDevice.hpp>
 #include "DeviceManager.hpp"
 
 #define PING_VERBOSE    1

@@ -3,6 +3,8 @@
 .idea/
 .settings/language.settings.xml
 
+build/log/
+
 cmake-build-debug/
 CMakeFiles/
 cmake_install.cmake

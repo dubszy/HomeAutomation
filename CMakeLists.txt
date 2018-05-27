@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.6)
 project(HomeAutomation)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -29,13 +29,25 @@ add_executable(DeviceManager
 
 target_link_libraries(DeviceManager liblogger.a)
 
+### Living Room Server ###
+add_executable(livingroomd
+        src/server/livingroom/LivingRoom.cpp)
+
+### Kitchen Server ###
+add_executable(kitchend
+        src/server/kitchen/Kitchen.cpp)
+
+### Bedroom Server ###
+add_executable(bedroomd
+        src/server/bedroom/Bedroom.cpp)
+
+### Garage Server ###
+add_executable(garage
+        src/server/garage/Garage.cpp)
+
 ### Appliances ###
 
 ## Hot Tub ##
-# Client
-#add_executable(HotTubClient
-#        src/devices/appliances/hot-tub/client/client.cpp)
-# Server
 add_executable(HotTubServer
         src/devices/appliances/hot-tub/subdevices/Heater.cpp
         src/devices/appliances/hot-tub/subdevices/Pump.cpp

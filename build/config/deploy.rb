@@ -5,8 +5,8 @@ require_relative '../../../Logger/src/ruby/logger'
 # config valid for current version and patch releases of Capistrano
 lock "~> 3.10.2"
 
-set :repo_url, 'git@github.com:dubszy/home-automation.git'
-set :deploy_to, "/home/#{HA_USER}/deploy"
+set :repo_url, 'git@github.com:dubszy/HomeAutomation.git'
+set :deploy_to, '/home/ha/deploy'
 
 @log = CDAT::Logger.for_item('Deploy', :info)
 
@@ -42,80 +42,105 @@ def run_local(cmd)
 end
 
 # Check that :branch exists
+log.info "Checking that integration/#{fetch(:branch)} exists"
 stop "integration/#{fetch(:branch)} doesn't exist" unless branch_exists(fetch(:branch))
 
 # Check that the local branch matches the remote branch
+log.info 'Checking that local branch matches remote'
 local_matches_remote = `git diff integration/#{fetch(:branch)}`.to_s.empty?
-stop "Local branch differs from remote" unless local_matches_remote
+#stop "Local branch differs from remote" unless local_matches_remote
 
 # Check that the local working tree is clean
+log.info 'Checking that the working tree is clean'
 working_tree_clean = `git status --porcelain`.to_s.empty?
-stop 'Commit or stash your local changes' unless working_tree_clean
+#stop 'Commit or stash your local changes' unless working_tree_clean
 
 # Check for prerequisites on build server
 # - cmake
 # - git
 namespace :deploy do
+
   desc 'Prerequisites'
   task :prerequisites do
+    log.info 'Checking for cmake'
+    which_cmake_output = ''
     on roles(:build) do
-      as HA_USER do
-        puts 'Checking for cmake'
-        execute 'which cmake'
-        execute 'which git'
+      which_cmake_output = capture :which, 'cmake', raise_on_non_zero_exit: false
+    end
+    stop 'cmake not found' if which_cmake_output.to_s.empty?
+  end
+
+  # Fetch latest or clone repos we depend on
+  desc 'Fetch/Clone and Compile Dependent Repos'
+  task :clone_or_fetch_deps do
+    log.info 'Fetch/Clone and Compile: Logger, PropertiesManager, and drivers'
+    on roles(:build) do
+      within '/home/ha/deploy' do
+        # Clone or fetch Logger
+        if test('[ -d /home/ha/deploy/Logger ]')
+          # Pull latest Logger if we have the repo already...
+          within('Logger') { execute :git, 'pull' }
+        else
+          # ..or else clone the repo
+          execute :git, 'clone', 'git@github.com:dubszy/Logger.git'
+        end
+        # Build Logger
+        within ('Logger') do
+          execute :cmake, '.' # Create or update cmake's autogen files
+          execute :cmake, '--build', '.' # Build in-place
+          execute :mv, 'liblogger.a', '/usr/local/lib/' # Install library
+        end
+
+        # Clone or fetch PropertiesManager
+        if test('[ -d /home/ha/deploy/PropertiesManager ]')
+          # Pull latest PropertiesManager if we have the repo already
+          within('PropertiesManager') { execute :git, 'pull' }
+        else
+          # ... or else clone the repo
+          execute :git, 'clone', 'git@github.com:dubszy/PropertiesManager.git'
+        end
+        # Build PropertiesManager
+        within ('PropertiesManager') do
+          execute :cmake, '.' # Create or update cmake's autogen files
+          execute :cmake, '--build', '.' # Build in-place
+          execute :mv, 'libPropertiesManager.a', '/usr/local/lib/' # Install library
+        end
+
+        # Clone or fetch drivers
+        if test('[ -d /home/ha/deploy/drivers ]')
+          # Pull latest drivers if we have the repo already
+          within('drivers') { execute :git, 'pull' }
+        else
+          # ... or else clone the repo
+          execute :git, 'clone', 'git@github.com:dubszy/drivers.git'
+        end
+        within ('drivers') do
+          execute :cmake, '.' # Create or update cmake's autogen files
+          execute :cmake, '--build', '.' # Build in-place
+          execute :mv, '*.a', '/usr/local/lib/' # Install libraries
+        end
+      end
+    end
+  end
+
+  desc 'Compile HomeAutomation'
+  task :compile_home_automation do
+    log.info 'Compiling Home Automation'
+    on roles(:build) do
+      within "#{release_path}" do
+        execute :cmake, '.' # Create or update cmake's autogen files
+        execute :cmake, '--build', '.'
+        execute :mv, 'hanoded', '/usr/local/bin'
+        execute :mv, 'kitchend', '/usr/local/bin'
+        execute :mv, 'livingroomd', '/usr/local/bin'
+        execute :mv, 'bedroomd', '/usr/local/bin'
+        execute :mv, 'HotTubServer', '/usr/local/bin/'
       end
     end
   end
 
   before 'deploy:symlink:shared', :prerequisites
-end
-
-# Fetch latest or clone repos we depend on
-desc 'Checkout Dependent Repos'
-task :checkout_logger do
-  on roles(:build) do
-    within "/home/#{HA_USER}/code" do
-      as HA_USER do
-        # FIXME: there is a bit of a cyclic issue here:
-        # Logger depends on PropertiesManager and vice-versa, so if both don't exist, we're in trouble.
-        # Logger and PropertiesManager should be built somewhere else, then we should fetch the compiled
-        # binaries for them instead.
-        #
-        # TODO: drivers should be built elsewhere, and then we should fetch the binaries instead
-
-        # Clone or fetch Logger
-        if test('[ -d Logger ]')
-          # Pull latest Logger if we have the repo already...
-          within("/home/#{HA_USER}/code/Logger") { execute :git, 'pull', 'integration/master' }
-        else
-          # ..or else clone the repo
-          execute :git, 'clone', 'git@github.com:/dubszy/Logger.git'
-        end
-        # Build Logger
-        execute :cmake, '--build', "cmake-build-#{stage}"
-
-        # Clone or fetch PropertiesManager
-        if test('[ -d PropertiesManager ]')
-          # Pull latest PropertiesManager if we have the repo already
-          within("/home/#{HA_USER}/code/PropertiesManager") { execute :git, 'pull', 'integration/master' }
-        else
-          # ... or else clone the repo
-          execute :git, 'clone', 'git@github.com:/dubszy/PropertiesManager.git'
-        end
-        # Build PropertiesManager
-
-        # Clone or fetch drivers
-        if test('[ -d drivers ]')
-          # Pull latest drivers if we have the repo already
-          within("/home/#{HA_USER}/code/drivers") { execute :git, 'pull', 'integration/master' }
-        else
-          # ... or else clone the repo
-          execute :git, 'clone', 'git@github.com:dubszy/drivers.git'
-        end
-        execute :cmake, '--build', "cmake-build-#{stage}"
-      end
-    end
-  end
+  after :prerequisites, :clone_or_fetch_deps
 end
 
 desc 'Compile HANode'

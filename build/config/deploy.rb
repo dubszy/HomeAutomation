@@ -129,7 +129,8 @@ namespace :deploy do
     on roles(:build) do
       within "#{release_path}" do
         execute :cmake, '.' # Create or update cmake's autogen files
-        execute :cmake, '--build', '.'
+        execute :cmake, '--build', '.' # Build in-place
+        # Copy libraries
         execute :mv, 'hanoded', '/usr/local/bin'
         execute :mv, 'kitchend', '/usr/local/bin'
         execute :mv, 'livingroomd', '/usr/local/bin'
@@ -141,78 +142,8 @@ namespace :deploy do
 
   before 'deploy:symlink:shared', :prerequisites
   after :prerequisites, :clone_or_fetch_deps
+  after :clone_or_fetch_deps, :compile_home_automation
 end
-
-desc 'Compile HANode'
-task :compile_ha_node do
-  on roles(:build) do
-    puts 'Compiling HANode'
-    execute 'cd /home/ha/code'
-    execute "cmake --build cmake-build-#{stage} --target hanoded"
-  end
-end
-
-desc 'Compile Kitchen Server'
-task :compile_kitchen_server do
-  on roles(:build) do
-    puts 'Compiling Kitchen Server'
-    execute 'cd /home/ha/code'
-    execute "cmake --build cmake-build-#{stage} --target kitchend"
-  end
-end
-
-desc 'Compile Living Room Server'
-task :compile_living_room_server do
-  on roles(:build) do
-    puts 'Compiling Living Room Server'
-    execute 'cd /home/ha/code'
-    execute "cmake --build cmake-build-#{stage} --target livingroomd"
-  end
-end
-
-desc 'Compile Bedroom Server'
-task :compile_bedroom_server do
-  on roles(:build) do
-    puts 'Compiling Bedroom Server'
-    execute 'cd /home/ha/code'
-    execute "cmake --build cmake-build-#{stage} --target bedroomd"
-  end
-end
-
-desc 'Compile Hot Tub Client'
-task :compile_hot_tub_client do
-  on roles(:build) do
-    puts 'Compiling Hot Tub Client'
-    execute 'cd /home/ha/code/build/devices/appliances/hot-tub/client'
-    execute './build.sh'
-  end
-end
-
-desc 'Upload Hot Tub Client'
-task :upload_hot_tub_client do
-  on roles(:hot_tub) do
-    puts 'Uploading Hot Tub Client'
-    execute 'cd /home/ha/code/build/devices/appliances/hot-tub/client'
-    execute './upload.sh'
-  end
-end
-
-desc 'Compile Hot Tub Server'
-task :compile_hot_tub_server do
-  on roles(:build) do
-    puts 'Compiling Hot Tub Server'
-    execute 'cd /home/ha/code'
-    execute "cmake --build cmake-build-#{environment} --target HotTubServer"
-  end
-end
-
-# after :compile_ha_node, :compile_kitchen_server
-# after :compile_kitchen_server, :compile_living_room_server
-# after :compile_living_room_server, :compile_bedroom_server
-# after :compile_bedroom_server, :compile_garage_server
-# after :compile_garage_server, :compile_hot_tub_client
-# after :compile_hot_tub_client, :compile_hot_tub_server
-# after :compile_hot_tub_server, :upload_hot_tub_client
 
 namespace :deploy_web do
   desc 'Check Prerequisites'

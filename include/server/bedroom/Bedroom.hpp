@@ -3,6 +3,8 @@
 
 class Bedroom {
 
+public:
+    Bedroom();
 };
 
 #endif /* _BEDROOM_HPP_ */

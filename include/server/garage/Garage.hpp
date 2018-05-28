@@ -3,6 +3,8 @@
 
 class Garage {
 
+public:
+    Garage();
 };
 
 #endif /* _GARAGE_HPP_ */

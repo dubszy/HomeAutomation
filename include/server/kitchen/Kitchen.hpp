@@ -3,6 +3,8 @@
 
 class Kitchen {
 
+public:
+    Kitchen();
 };
 
 #endif /* _KITCHEN_HPP_ */

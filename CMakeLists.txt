@@ -31,19 +31,23 @@ target_link_libraries(DeviceManager liblogger.a)
 
 ### Living Room Server ###
 add_executable(livingroomd
-        src/server/livingroom/LivingRoom.cpp)
+        src/server/livingroom/LivingRoom.cpp
+        src/server/livingroom/main.cpp)
 
 ### Kitchen Server ###
 add_executable(kitchend
-        src/server/kitchen/Kitchen.cpp)
+        src/server/kitchen/Kitchen.cpp
+        src/server/kitchen/main.cpp)
 
 ### Bedroom Server ###
 add_executable(bedroomd
-        src/server/bedroom/Bedroom.cpp)
+        src/server/bedroom/Bedroom.cpp
+        src/server/bedroom/main.cpp)
 
 ### Garage Server ###
 add_executable(garage
-        src/server/garage/Garage.cpp)
+        src/server/garage/Garage.cpp
+        src/server/garage/main.cpp)
 
 ### Appliances ###
 

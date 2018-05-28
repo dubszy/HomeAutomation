@@ -3,6 +3,8 @@
 
 class LivingRoom {
 
+public:
+    LivingRoom();
 };
 
 #endif /* _LIVING_ROOM_HPP_ */

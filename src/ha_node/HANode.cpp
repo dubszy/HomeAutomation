@@ -26,7 +26,7 @@ int HANode::startServer() {
     struct sockaddr_in server_addr {};
 
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        log->fatal("Failed to open socket");
+        hanodeLog->fatal("Failed to open socket");
         stopServer();
         return -1;
     }
@@ -38,7 +38,7 @@ int HANode::startServer() {
     bind(sockfd, (struct sockaddr *) &server_addr, sizeof(server_addr));
 
     if (listen(sockfd, 10) < 0) {
-        log->fatal("Failed to start listening on socket");
+        hanodeLog->fatal("Failed to start listening on socket");
         stopServer();
         return -1;
     }

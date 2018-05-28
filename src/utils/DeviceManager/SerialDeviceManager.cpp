@@ -1,7 +1,9 @@
 #include "../../../include/utils/DeviceManager/SerialDeviceManager.hpp"
 
+static SerialDeviceManager *sharedSerialDeviceManager = nullptr;
+
 SerialDeviceManager *SerialDeviceManager::getSharedSerialDeviceManager() {
-    if (!sharedSerialDeviceManager) {
+    if (sharedSerialDeviceManager == nullptr) {
         sharedSerialDeviceManager = new SerialDeviceManager(65536);
     }
     return sharedSerialDeviceManager;

@@ -53,7 +53,6 @@ class IPDeviceManager : DeviceManager {
                        bool socketDebug, bool socketDontRoute, bool flood);
 
 protected:
-    static IPDeviceManager *sharedIPDeviceManager;
     Logger *log = Logger::forClass<IPDeviceManager>(LogLevelInfo);
 
 private:

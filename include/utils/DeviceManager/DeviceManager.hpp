@@ -16,7 +16,6 @@ class DeviceManager {
     protected:
         uint32_t maxDevices;
         uint32_t nextDeviceIndex;
-        static DeviceManager *sharedDeviceManager;
         vector<DeviceMap> devices;
 
     public:

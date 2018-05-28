@@ -19,8 +19,10 @@
 
 #include "../../../include/utils/DeviceManager/IPDeviceManager.hpp"
 
+static IPDeviceManager *sharedIPDeviceManager = nullptr;
+
 IPDeviceManager *IPDeviceManager::getSharedIPDeviceManager() {
-    if (sharedIPDeviceManager == NULL) {
+    if (sharedIPDeviceManager == nullptr) {
         sharedIPDeviceManager = new IPDeviceManager(65536);
     }
     return sharedIPDeviceManager;

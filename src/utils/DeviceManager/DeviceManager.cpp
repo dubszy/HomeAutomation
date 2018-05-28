@@ -2,11 +2,13 @@
 
 #include <utils/DeviceManager/DeviceManager.hpp>
 
+static DeviceManager *sharedDeviceManager = nullptr;
+
 DeviceManager *DeviceManager::getSharedDeviceManager() {
-    if (DeviceManager::sharedDeviceManager == nullptr) {
-        DeviceManager::sharedDeviceManager = new DeviceManager(65536);
+    if (sharedDeviceManager == nullptr) {
+        sharedDeviceManager = new DeviceManager(65536);
     }
-    return DeviceManager::sharedDeviceManager;
+    return sharedDeviceManager;
 }
 
 int DeviceManager::addDevice(Device *device, NetAddr addr) {

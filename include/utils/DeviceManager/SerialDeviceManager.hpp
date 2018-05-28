@@ -12,9 +12,6 @@ typedef struct {
 
 class SerialDeviceManager : DeviceManager {
 
-    protected:
-        static SerialDeviceManager *sharedSerialDeviceManager;
-
     public:
         SerialDeviceManager(uint32_t maxDevices) : DeviceManager(maxDevices) {}
 

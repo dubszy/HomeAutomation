@@ -10,8 +10,6 @@
 #include <ha_node/types.h>
 #include <ha_node/HANode.hpp>
 
-static Logger *log = Logger::forClass<HANode>(LogLevelWarning);
-
 static HANode *haNode = new HANode(new Properties("/etc/homeautomation/ha_node/default.properties"),
                                    vector<IPAddress>(1, {10, 0, 0, 0}));
 
@@ -66,7 +64,7 @@ int HANode::waitForRequest() {
     char client_addr_str[INET_ADDRSTRLEN];
 
     if ((client_sockfd = accept(sockfd, (struct sockaddr *) &client_addr, &client_len)) < 0) {
-        log->error("Failed to accept request from client: %s",
+        hanodeLog->error("Failed to accept request from client: %s",
                    inet_ntop(AF_INET, &(client_addr.sin_addr), client_addr_str, INET_ADDRSTRLEN));
         return -1;
     } else {
@@ -81,7 +79,7 @@ int HANode::processRequest(in_addr_t client_addr) {
         if (ipton(permittedClient) == client_addr) {
             bzero(input_buf, 2048);
             if (read(client_sockfd, input_buf, 2047) < 0) {
-                log->error("Error reading from socket");
+                hanodeLog->error("Error reading from socket");
                 break;
             }
             switch (input_buf[0]) {
@@ -125,8 +123,8 @@ int HANode::response(char *buf) {
     int res = 0;
 
     if (write(client_sockfd, buf, sizeof(buf)) < 0) {
-        log->error("Error writing buffer to socket");
-        log->info("Buffer contents: ", buf);
+        hanodeLog->error("Error writing buffer to socket");
+        hanodeLog->info("Buffer contents: ", buf);
         res = 500;
     } else {
         res = 200;

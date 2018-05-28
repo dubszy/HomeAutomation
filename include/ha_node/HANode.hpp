@@ -28,6 +28,9 @@ public:
     const char *getDeviceType();
     const char *getDeviceName();
 
+protected:
+    Logger *hanodeLog = Logger::forClass<HANode>(LogLevelInfo);
+
 private:
     HANode(const HANode&);
     HANode& operator=(const HANode&);

@@ -140,6 +140,14 @@ namespace :deploy do
     end
   end
 
+  desc 'Copy HA Resources'
+  task :copy_ha_resources do
+    log.info 'Copying HA Resources'
+    on roles(:build) do
+      upload! '../res/etc/', '/etc/', options: {recursive: true}
+    end
+  end
+
   before 'deploy:symlink:shared', :prerequisites
   after :prerequisites, :clone_or_fetch_deps
   after :clone_or_fetch_deps, :compile_home_automation

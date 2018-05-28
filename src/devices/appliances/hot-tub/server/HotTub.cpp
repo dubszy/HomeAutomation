@@ -1,5 +1,9 @@
 #include <devices/appliances/hot-tub/server/HotTub.hpp>
+
 #include <iomanip>
+#include <sys/stat.h>
+
+#include <Properties.hpp>
 
 HotTub::HotTub(string name, NetAddr netAddr)
         : netAddr_(netAddr), Appliance(name) { // NOLINT do not std::move 'name'
@@ -8,13 +12,41 @@ HotTub::HotTub(string name, NetAddr netAddr)
     client_ = new SPIDevice("Client", 0, 1000000, 16);
     log->info("Client: " + client_->toString());
 
-    zone0_thermo_ = new DS18B20("Heater Thermometer", ScaleCelsius, 2, "1234567890AB");
+    // Load the .properties file
+    string propFilePath = "/etc/homeautomation/devices/appliances/hot-tub/custom.properties";
+    struct stat propBuffer;
+    if (stat(propFilePath.c_str(), &propBuffer) != 0) {
+        propFilePath = "/etc/homeautomation/devices/appliances/hot-tub/default.properties";
+    }
+
+    auto *properties = new Properties(propFilePath.c_str());
+
+    zone0_thermo_ = new DS18B20(
+            properties->get("thermo.zone0.name")->value(),
+            Thermometer::getScaleFromString(properties->get("thermo.zone0.scale")->value()),
+            properties->get("thermo.zone0.precision")->valueAsNumber(),
+            properties->get("thermo.zone0.addr")->value());
     log->info("Zone 0 Thermo: " + zone0_thermo_->toString());
-    zone1_thermo_ = new DS18B20("Pump 1 Zone Thermometer", ScaleCelsius, 2, "1234567890AB");
+
+    zone1_thermo_ = new DS18B20(
+            properties->get("thermo.zone1.name")->value(),
+            Thermometer::getScaleFromString(properties->get("thermo.zone1.scale")->value()),
+            properties->get("thermo.zone1.precision")->valueAsNumber(),
+            properties->get("thermo.zone1.addr")->value());
     log->info("Zone 1 Thermo: " + zone1_thermo_->toString());
-    zone2_thermo_ = new DS18B20("Pump 2 Zone Thermometer", ScaleCelsius, 2, "1234567890AB");
+
+    zone2_thermo_ = new DS18B20(
+            properties->get("thermo.zone2.name")->value(),
+            Thermometer::getScaleFromString(properties->get("thermo.zone2.scale")->value()),
+            properties->get("thermo.zone2.precision")->valueAsNumber(),
+            properties->get("thermo.zone2.addr")->value());
     log->info("Zone 2 Thermo: " + zone2_thermo_->toString());
-    zone3_thermo_ = new DS18B20("Footwell Thermometer", ScaleCelsius, 2, "1234567890AB");
+
+    zone3_thermo_ = new DS18B20(
+            properties->get("thermo.zone3.name")->value(),
+            Thermometer::getScaleFromString(properties->get("thermo.zone3.scale")->value()),
+            properties->get("thermo.zone3.precision")->valueAsNumber(),
+            properties->get("thermo.zone3.addr")->value());
     log->info("Zone 3 Thermo: " + zone3_thermo_->toString());
 
     heater_ = new Heater(DEVICE_ID_HEATER, netAddr_);

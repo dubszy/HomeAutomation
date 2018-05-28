@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sys/stat.h>
 
+#include <Property.hpp>
 #include <Properties.hpp>
 
 HotTub::HotTub(string name, NetAddr netAddr)

@@ -66,4 +66,4 @@ add_executable(HotTubServer
         src/devices/appliances/hot-tub/server/HotTub.cpp
         src/devices/appliances/hot-tub/server/main.cpp)
 
-target_link_libraries(HotTubServer liblogger.a libspi.a libonewire.a libds18b20.a)
+target_link_libraries(HotTubServer liblogger.a libPropertiesManager.a libspi.a libonewire.a libds18b20.a)

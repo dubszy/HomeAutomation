@@ -3,6 +3,8 @@
 #include <devices/core/IPDevice.hpp>
 #include "DeviceManager.hpp"
 
+#include <logger/c++/Logger.hpp>
+
 #define PING_VERBOSE    1
 #define PING_QUIET      2
 #define PING_FLOOD      4

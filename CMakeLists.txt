@@ -4,9 +4,14 @@ project(HomeAutomation)
 set(CMAKE_CXX_STANDARD 11)
 
 include_directories(include)
+# dev include directories
 include_directories(../drivers/include)
 include_directories(../Logger/include)
 include_directories(../PropertiesManager/include)
+# build server include directories
+include_directories(/home/ha/deploy/drivers/include)
+include_directories(/home/ha/deploy/Logger/include)
+include_directories(/home/ha/deploy/PropertiesManager/include)
 
 link_directories(../drivers/cmake-build-debug)
 link_directories(../Logger/cmake-build-debug)

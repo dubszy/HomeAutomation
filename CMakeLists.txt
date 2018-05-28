@@ -30,7 +30,8 @@ target_link_libraries(hanoded liblogger.a libPropertiesManager.a)
 add_executable(DeviceManager
         src/utils/DeviceManager/DeviceManager.cpp
         src/utils/DeviceManager/IPDeviceManager.cpp
-        src/utils/DeviceManager/SerialDeviceManager.cpp)
+        src/utils/DeviceManager/SerialDeviceManager.cpp
+        src/utils/DeviceManager/main.cpp)
 
 target_link_libraries(DeviceManager liblogger.a)
 

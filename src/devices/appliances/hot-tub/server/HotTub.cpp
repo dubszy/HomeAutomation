@@ -25,28 +25,28 @@ HotTub::HotTub(string name, NetAddr netAddr)
     zone0_thermo_ = new DS18B20(
             properties->get("thermo.zone0.name")->value(),
             Thermometer::getScaleFromString(properties->get("thermo.zone0.scale")->value()),
-            properties->get("thermo.zone0.precision")->valueAsNumber(),
+            properties->get("thermo.zone0.precision")->valueAsNumber<uint8_t>(),
             properties->get("thermo.zone0.addr")->value());
     log->info("Zone 0 Thermo: " + zone0_thermo_->toString());
 
     zone1_thermo_ = new DS18B20(
             properties->get("thermo.zone1.name")->value(),
             Thermometer::getScaleFromString(properties->get("thermo.zone1.scale")->value()),
-            properties->get("thermo.zone1.precision")->valueAsNumber(),
+            properties->get("thermo.zone1.precision")->valueAsNumber<uint8_t>(),
             properties->get("thermo.zone1.addr")->value());
     log->info("Zone 1 Thermo: " + zone1_thermo_->toString());
 
     zone2_thermo_ = new DS18B20(
             properties->get("thermo.zone2.name")->value(),
             Thermometer::getScaleFromString(properties->get("thermo.zone2.scale")->value()),
-            properties->get("thermo.zone2.precision")->valueAsNumber(),
+            properties->get("thermo.zone2.precision")->valueAsNumber<uint8_t>(),
             properties->get("thermo.zone2.addr")->value());
     log->info("Zone 2 Thermo: " + zone2_thermo_->toString());
 
     zone3_thermo_ = new DS18B20(
             properties->get("thermo.zone3.name")->value(),
             Thermometer::getScaleFromString(properties->get("thermo.zone3.scale")->value()),
-            properties->get("thermo.zone3.precision")->valueAsNumber(),
+            properties->get("thermo.zone3.precision")->valueAsNumber<uint8_t>(),
             properties->get("thermo.zone3.addr")->value());
     log->info("Zone 3 Thermo: " + zone3_thermo_->toString());
 

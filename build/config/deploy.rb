@@ -151,6 +151,7 @@ namespace :deploy do
   before 'deploy:symlink:shared', :prerequisites
   after :prerequisites, :clone_or_fetch_deps
   after :clone_or_fetch_deps, :compile_home_automation
+  after :compile_home_automation, :copy_ha_resources
 end
 
 namespace :deploy_web do

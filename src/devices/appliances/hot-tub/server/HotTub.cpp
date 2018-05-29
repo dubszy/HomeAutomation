@@ -15,12 +15,16 @@ HotTub::HotTub(string name, NetAddr netAddr)
 
     // Load the .properties file
     string propFilePath = "/etc/homeautomation/devices/appliances/hot-tub/custom.properties";
-    struct stat propBuffer;
+    struct stat propBuffer{};
     if (stat(propFilePath.c_str(), &propBuffer) != 0) {
         propFilePath = "/etc/homeautomation/devices/appliances/hot-tub/default.properties";
     }
 
     auto *properties = new Properties(propFilePath.c_str());
+    if (!properties->propsFileOpen()) {
+        log->fatal("Could not load settings, exiting");
+        exit(1);
+    }
 
     zone0_thermo_ = new DS18B20(
             properties->get("thermo.zone0.name")->value(),

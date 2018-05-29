@@ -144,7 +144,7 @@ namespace :deploy do
   task :copy_ha_resources do
     log.info 'Copying HA Resources'
     on roles(:build) do
-      upload! '../res/etc/', '/etc/', options: {recursive: true}
+      upload! '../res/etc/', '/etc/', recursive: true
     end
   end
 

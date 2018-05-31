@@ -70,6 +70,20 @@ namespace :deploy do
     stop 'cmake not found' if which_cmake_output.to_s.empty?
   end
 
+  desc 'Copy HA Resources'
+  task :copy_ha_resources do
+    log.info 'Copying HA Resources'
+    on roles(:hot_tub) do
+      upload! '../res/etc/homeautomation/devices/appliances/hot-tub/default.properties',
+              '/etc/homeautomation/devices/appliances/hot-tub/default.properties'
+    end
+
+    on roles(:ha_node) do
+      upload! '../res/etc/homeautomation/ha_node/default.properties',
+              '/etc/homeautomation/ha_node/default.properties'
+    end
+  end
+
   # Fetch latest or clone repos we depend on
   desc 'Fetch/Clone and Compile Dependent Repos'
   task :clone_or_fetch_deps do
@@ -140,30 +154,37 @@ namespace :deploy do
     end
   end
 
-  desc 'Copy HA Resources'
-  task :copy_ha_resources do
-    log.info 'Copying HA Resources'
-    on roles(:build) do
-      upload! '../res/etc/homeautomation/', '/etc', recursive: true
+  desc 'Copy Built Binaries'
+  task :copy_built_binaries do
+    log.info 'Copying built binaries'
+    on roles(:ha_node) do
+      download! "#{HA_BUILD_SERVER}:/usr/local/bin/ha_node", '/usr/local/bin/ha_node'
     end
-  end
 
-  before 'deploy:symlink:shared', :prerequisites
-  after :prerequisites, :copy_ha_resources
-  after :prerequisites, :clone_or_fetch_deps
-  after :clone_or_fetch_deps, :compile_home_automation
-  after :compile_home_automation, :copy_ha_resources
-end
+    on roles(:living_room) do
+      download! "#{HA_BUILD_SERVER}:/usr/local/bin/livingroomd", '/usr/local/bin/livingroomd'
+    end
 
-namespace :deploy_web do
-  desc 'Check Prerequisites'
-  task :check_prerequisites do
-    puts 'Checking Prerequisites'
-    execute `which node`
+    on roles(:kitchen) do
+      download! "#{HA_BUILD_SERVER}:/usr/local/bin/kitchend", '/usr/local/bin/kitchend'
+    end
+
+    on roles(:bedroom) do
+      download! "#{HA_BUILD_SERVER}:/usr/local/bin/bedroomd", '/usr/local/bin/bedroomd'
+    end
+
+    on roles(:garage) do
+      download! "#{HA_BUILD_SERVER}:/usr/local/bin/garaged", '/usr/local/bin/garaged'
+    end
+
+    on roles(:hot_tub) do
+      download! "#{HA_BUILD_SERVER}:/usr/local/lib/HotTubServer", '/usr/local/lib/HotTubServer'
+    end
   end
 
   desc 'Copy Web Server Assets'
   task :copy_web_server_assets do
+    log.info 'Copying web server assets'
     on roles(:web) do
       upload! '/home/ha/web', 'src/web', recursive: true
     end
@@ -171,12 +192,19 @@ namespace :deploy_web do
 
   desc 'Restart Node'
   task :restart_node do
+    log.info 'Restarting Node'
     on roles(:web) do
-      execute "cd /home/ha/web/server"
-      execute "node server.js"
+      within('/home/ha/web/server') do
+        execute :node, 'server.js'
+      end
     end
   end
-end
 
-# after :check_prerequisites, :copy_web_server_assets
-# after :copy_web_server_assets, :restart_node
+  before 'deploy:symlink:shared', :prerequisites
+  after :prerequisites, :copy_ha_resources
+  after :prerequisites, :clone_or_fetch_deps
+  after :clone_or_fetch_deps, :compile_home_automation
+  after :compile_home_automation, :copy_built_binaries
+  #after :copy_built_binaries, :copy_web_server_assets
+  #after :copy_web_server_assets, :restart_node
+end

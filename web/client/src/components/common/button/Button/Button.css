@@ -1,0 +1,58 @@
+.button {
+    border: 2px solid;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    font-weight: 300;
+    height: 30px;
+    margin: 0 7px;
+    width: 81px;
+}
+
+
+/* Alter Button */
+.buttonAlter {
+    background-color: coral;
+    border-color: tomato;
+}
+
+.buttonAlter:hover {
+    background-color: tomato;
+    border-color: coral;
+}
+
+
+/* Caution Button */
+.buttonCaution {
+    background-color: #BB0000;
+    border-color: darkred;
+}
+
+.buttonCaution:hover {
+    background-color: darkred;
+    border-color: #BB0000;
+}
+
+
+/* Primary Button */
+.buttonPrimary {
+    background-color: forestgreen;
+    border-color: darkgreen;
+}
+
+.buttonPrimary:hover {
+    background-color: darkgreen;
+    border-color: forestgreen;
+}
+
+
+/* Secondary Button */
+.buttonSecondary {
+    background-color: gray;
+    border-color: slategray;
+}
+
+.buttonSecondary:hover {
+    background-color: slategray;
+    border-color: gray;
+}

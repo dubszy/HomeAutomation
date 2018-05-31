@@ -20,3 +20,7 @@ src/sandbox/
 !src/sandbox/README.md
 res/sandbox/
 !res/sandbox/README.md
+
+web/node_modules/
+web/client/dist/bundle.js
+web/config/env.json

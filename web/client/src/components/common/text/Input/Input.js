@@ -7,7 +7,6 @@ export default class Input extends React.Component {
 
   constructor() {
     super();
-    this.handleOnChange = this.handleOnChange.bind(this);
     this.state = {
       value: ''
     }

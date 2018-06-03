@@ -15,18 +15,98 @@ export default class InputWithLabel extends React.Component {
     super();
   }
 
+  static processLabelProps(props) {
+
+    const styles = {};
+    const classNames = [];
+
+    const {
+      className,
+      ...rest
+    } = props;
+
+    classNames.push('labelForInput');
+
+    if (typeof className !== 'undefined') {
+      classNames.push(className);
+    }
+
+    return Object.assign(
+      {},
+      {
+        style: styles,
+        className: classNames.join(' ')
+      },
+      rest
+    );
+  }
+
+  static processInputProps(props) {
+
+    const styles = {};
+    const classNames = [];
+
+    const {
+      className,
+      cssFloat,
+      ...rest
+    } = props;
+
+    if (typeof className !== 'undefined') {
+      classNames.push(className)
+    }
+
+    if (typeof cssFloat !== 'undefined') {
+      styles.cssFloat = cssFloat;
+    }
+
+    return Object.assign(
+      {},
+      {
+        style: styles,
+        className: classNames
+      },
+      rest
+    );
+  }
+
+  static propcessor(props) {
+
+    const styles = {};
+    const classNames = [];
+
+    const {
+      className,
+      ...rest
+    } = props;
+
+    classNames.push('inputWithLabel');
+
+    if (className) {
+      classNames.push(className);
+    }
+
+    return Object.assign(
+      {},
+      {
+        className: classNames.join(' '),
+        style: styles
+      },
+      rest
+    );
+  }
+
   render() {
-    const { labelText, onChange, ...restProps } = this.props;
+    const { labelText, labelProps, inputProps, ...rest } = this.props;
+    const processedLabelProps = InputWithLabel.processLabelProps(labelProps || {});
+    const processedInputProps = InputWithLabel.processInputProps(inputProps || {});
+    const processedProps = InputWithLabel.propcessor(rest);
 
     return (
-      <div className='inputWithLabel'>
-        <label>
+      <div {...processedProps}>
+        <label {...processedLabelProps}>
           {labelText}
-          <Input
-            className='labelInput'
-            onChange={onChange}
-            {...restProps}
-          />
+          <Input {...processedInputProps}/>
         </label>
       </div>
     )

@@ -13,11 +13,14 @@ export default class TextArea extends React.Component {
   }
 
   render() {
-    const { onChange, ...restProps } = this.props;
+    const { className, onChange, ...restProps } = this.props;
+
+    let classNames = (typeof className !== 'undefined') ? className : '';
+    classNames += ' textArea';
 
     return (
       <textarea
-        className={classes.textArea}
+        className={classNames}
         onChange={() => onChange}
         {...restProps}
       />

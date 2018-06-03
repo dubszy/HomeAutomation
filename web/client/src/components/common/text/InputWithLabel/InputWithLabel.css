@@ -1,8 +1,9 @@
 .inputWithLabel {
+    height: 24px;
     padding: 2px 0;
     margin: 0 20px;
 }
 
-.labelInput {
-
+.labelForInput {
+    vertical-align: middle;
 }

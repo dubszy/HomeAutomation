@@ -19,13 +19,15 @@ export default class TextAreaWithLabel extends React.Component {
     const { labelText, onChange, ...restProps } = this.props;
 
     return (
-      <div className={classes.textAreaWithLabel}>
+      <div className='textAreaWithLabel'>
         <label>
           {labelText}
-          <TextArea
-            onChange={onChange}
-            {...restProps}
-          />
+          <div className='labelTextArea'>
+            <TextArea
+              onChange={onChange}
+              {...restProps}
+            />
+          </div>
         </label>
       </div>
     )

@@ -72,5 +72,6 @@ Column.propTypes = {
   className: PropTypes.string,
   order: PropTypes.number,
   minWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  maxWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+  maxWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  zIndex: PropTypes.number
 };

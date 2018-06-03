@@ -9,11 +9,14 @@ export default class UnorderedList extends React.Component {
   }
 
   render() {
-    const { children } = this.props;
+    const { className, children } = this.props;
+
+    let classNames = (typeof className !== 'undefined') ? className : '';
+    classNames += ' unorderedList';
 
     return (
       <ul
-        className={classes.unorderedList}
+        className={classNames}
       >
         {children}
       </ul>

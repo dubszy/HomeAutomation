@@ -19,11 +19,11 @@ export default class InputWithLabel extends React.Component {
     const { labelText, onChange, ...restProps } = this.props;
 
     return (
-      <div className={classes.inputWithLabel}>
+      <div className='inputWithLabel'>
         <label>
           {labelText}
           <Input
-            className={classes.labelInput}
+            className='labelInput'
             onChange={onChange}
             {...restProps}
           />

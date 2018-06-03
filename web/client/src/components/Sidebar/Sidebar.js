@@ -25,7 +25,7 @@ export default class Sidebar extends React.Component {
 
   render() {
     return (
-      <UnorderedList>
+      <UnorderedList className='sidebar'>
         <ListItem>
           Network Management
         </ListItem>

@@ -13,10 +13,14 @@ export default class Input extends React.Component {
   }
 
   render() {
-    const { onChange, ...restProps } = this.props;
+    const { className, onChange, ...restProps } = this.props;
+
+    let classNames = (typeof className !== 'undefined') ? className : '';
+    classNames += ' cInput';
+
     return (
       <input
-        className={classes.cInput}
+        className={classNames}
         onChange={() => onChange}
         {...restProps}
       />

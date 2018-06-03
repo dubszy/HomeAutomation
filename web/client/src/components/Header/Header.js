@@ -1,8 +1,8 @@
 import React from 'react'
 
-import classes from './Page.css'
+import classes from './Header.css'
 
-export default class Page extends React.Component {
+export default class Header extends React.Component {
 
   constructor() {
     super();
@@ -12,9 +12,9 @@ export default class Page extends React.Component {
     const { children } = this.props;
 
     return (
-      <div className='page'>
+      <div className='header'>
         {children}
       </div>
-    )
+    );
   }
 }

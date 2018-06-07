@@ -2,7 +2,7 @@ let path = require('path');
 
 const config = {
     entry: [
-        './entry.js'
+        './src/AppEntry.js'
     ],
     output: {
         path: __dirname + "/dist",

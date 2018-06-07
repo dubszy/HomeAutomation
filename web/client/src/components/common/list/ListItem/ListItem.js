@@ -9,11 +9,12 @@ export default class ListItem extends React.Component {
   }
 
   render() {
-    const { children } = this.props;
+    const { children, onClick } = this.props;
 
     return (
       <li
         className={classes.listItem}
+        onClick={() => onClick}
       >
         { children }
       </li>

@@ -27,6 +27,15 @@ export default class Sidebar extends React.Component {
     return (
       <UnorderedList className='sidebar'>
         <ListItem>
+          Dashboard
+        </ListItem>
+        <ListItem>
+          Devices
+        </ListItem>
+        <ListItem>
+          Nodes
+        </ListItem>
+        <ListItem>
           Network Management
         </ListItem>
       </UnorderedList>

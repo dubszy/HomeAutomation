@@ -1,12 +1,16 @@
 import React from 'react'
+import { Route } from 'react-router'
 
 import Sidebar from 'c/Sidebar'
 
 import Column from 'c/Column'
+import Dashboard from 'c/page/Dashboard'
+import Devices from 'c/page/Devices'
 import Header from 'c/Header'
 import MultiColumn from 'c/MultiColumn'
 import MultiRow from 'c/MultiRow'
 import NetworkManagement from 'c/page/NetworkManagement'
+import Nodes from 'c/page/Nodes'
 import Row from 'c/Row'
 
 import classes from './App.css'
@@ -18,6 +22,7 @@ export default class App extends React.Component {
   }
 
   render() {
+
     return (
       <div className='app'>
         <MultiRow id='superMultiRow'>
@@ -35,7 +40,12 @@ export default class App extends React.Component {
                 <Sidebar/>
               </Column>
               <Column flex={3}>
-                <NetworkManagement/>
+                <div>
+                  <Route path='/dashboard' component={Dashboard}/>
+                  <Route path='/devices' component={Devices}/>
+                  <Route path='/network' component={NetworkManagement}/>
+                  <Route path='/nodes' component={Nodes}/>
+                </div>
               </Column>
             </MultiColumn>
           </Row>

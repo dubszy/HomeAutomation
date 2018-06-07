@@ -23,6 +23,29 @@ app.all('*', (req, res, next) => {
     next();
 });
 
+app.get('*', (req, res, next) => {
+  let path = req.path;
+  if (path.indexOf('/api') === 0 ||
+      path.indexOf('/favicon.ico') === 0) {
+    next();
+  } else {
+    let options = {
+      root: 'client/src/',
+      headers: {
+        'contentType': 'text/html'
+      }
+    };
+
+    res.sendFile('index.html', options, (err) => {
+      if (err) {
+        let msg = 'Could not find index.html';
+        console.error(msg, err);
+        return res.status(404).json({success: false, message: msg, data: {}}).end();
+      }
+    })
+  }
+});
+
 app.get('/', (req, res) => {
     let options = {
         root: 'client/src/',
@@ -40,25 +63,8 @@ app.get('/', (req, res) => {
     })
 });
 
-app.get('*.js', (req, res) => {
-    let options = {
-        root: 'client/',
-        headers: {
-            'contentType': 'text/javascript'
-        }
-    };
-
-    res.sendFile(req.path, options, (err) => {
-        if (err) {
-            let msg = 'Could not find ' + req.path;
-            console.error(msg, err);
-            return res.status(404).json({success: false, message: msg, data: {}}).end();
-        }
-    })
-});
-
 // TODO: Create a favicon
-app.get('favicon.ico', (req, res) => {
+app.get('/favicon.ico', (req, res) => {
     console.log('favicon not implemented');
     return res.status(501).end('Favicon not implemented');
 });
